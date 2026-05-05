@@ -28,7 +28,7 @@ Este repositório contém o núcleo da infraestrutura da plataforma **Ecomoz**, 
 
 ```bash
 git clone https://github.com/albertogeraldolangaa-sketch/ecomoz.git
-cd ecomoz-core
+cd ecomoz 
 ```
 
 ### 2. Configurar o Ambiente Virtual
@@ -75,13 +75,7 @@ A aplicação estará disponível em `http://localhost:5000`.
 ## 🤝 Contribuição
 
 Este projeto foi desenvolvido de forma independente como parte de inovações tecnológicas para o mercado moçambicano.
-
-1. Faça um *Fork* do projeto.
-2. Crie uma *Branch* para a sua funcionalidade (`git checkout -b feature/nova-funcionalidade`).
-3. Faça *Commit* das suas alterações (`git commit -m 'Adiciona nova funcionalidade'`).
-4. Faça *Push* para a *Branch* (`git push origin feature/nova-funcionalidade`).
-5. Abra um *Pull Request*.
-
+ 
 ---
 
 ## 📄 Licença
