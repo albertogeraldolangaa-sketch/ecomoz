@@ -1,0 +1,79 @@
+<div id="modal-add-coupon" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4">
+    
+    <div class="modal-overlay fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-add-coupon')"></div>
+    
+    <div class="modal-content w-[90%] sm:w-[550px] max-h-[80vh] bg-white dark:bg-gray-800 rounded-2xl shadow-xl transform animate-scale-in overflow-y-auto relative flex flex-col">
+        
+        <button type="button" onclick="closeModal('modal-add-coupon')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors z-10">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <div class="p-8 pb-2">
+            <div class="flex items-center gap-4 mb-2">
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 shrink-0">
+                    <i data-lucide="ticket" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 id="modal-coupon-title" class="text-xl font-semibold text-gray-900 dark:text-white">Criar Novo Cupão</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Configure descontos especiais para os clientes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-8 py-6">
+            <form id="form-coupon" class="space-y-5">
+                
+                <div>
+                    <label class="block text-base font-medium text-gray-900 dark:text-gray-200 mb-2">Código do Cupão</label>
+                    <div class="relative">
+                        <input type="text" id="coupon_code" 
+                               class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white uppercase tracking-widest font-bold placeholder-gray-400" 
+                               placeholder="EX: VERAO2025" required>
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <i data-lucide="tag" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-base font-medium text-gray-900 dark:text-gray-200 mb-2">Tipo</label>
+                        <select id="coupon_type" class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white bg-white">
+                            <option value="percent">Percentagem (%)</option>
+                            <option value="fixed">Valor Fixo (MZN)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-medium text-gray-900 dark:text-gray-200 mb-2">Desconto</label>
+                        <input type="number" id="coupon_value" 
+                               class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white placeholder-gray-400" 
+                               placeholder="15" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-base font-medium text-gray-900 dark:text-gray-200 mb-2">Limite de Uso</label>
+                    <input type="number" id="coupon_uses" 
+                           class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white placeholder-gray-400" 
+                           placeholder="0 para ilimitado" value="0">
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Deixe como 0 para uso ilimitado.</p>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="p-8 pt-4 flex items-center justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+            <button type="button" onclick="closeModal('modal-add-coupon')" 
+                    class="px-6 py-2.5 rounded-lg text-base font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                Cancelar
+            </button>
+            
+            <button type="submit" form="form-coupon" 
+                    class="px-6 py-2.5 rounded-lg text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-all transform hover:scale-[1.02]">
+                Salvar Cupão
+            </button>
+        </div>
+
+    </div>
+</div>

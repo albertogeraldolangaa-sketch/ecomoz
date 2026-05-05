@@ -1,0 +1,214 @@
+<div class="modal-overlay" id="schedule-modal">
+    <div class="modal-header">
+        <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+        <h2 class="modal-title">
+            {% if business_model == 'delivery' %}
+                Finalizar Encomenda
+            {% else %}
+                Fazer Agendamento
+            {% endif %}
+        </h2>
+    </div>
+    <div class="modal-body" id="app-container"> 
+        
+        <div id="step-1-services" class="booking-step active">
+            <h2 class="section-title">
+                {% if business_model == 'delivery' %}
+                    Rever Carrinho
+                {% else %}
+                    Selecione um Serviço
+                {% endif %}
+            </h2>
+            <ul id="service-list" class="service-list">
+                <div id="loading-services" class="loader"></div>
+            </ul>
+        </div>
+        
+        <div id="step-1b-staff" class="booking-step">
+            <div class="step-header">
+                <button class="step-back-button" data-target="step-1-services" aria-label="Voltar">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="step-title">Selecione o Profissional</h2>
+            </div>
+            
+            <ul id="staff-list" class="staff-list">
+                <li class="staff-item" data-staff-id="any">
+                    <img src="https://placehold.co/50x50/e0e0e0/757575?text=?" alt="Qualquer" class="staff-avatar">
+                    <div class="staff-details">
+                        <span class="staff-name">Qualquer Profissional</span>
+                        <span class="staff-title">Disponibilidade mais cedo</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="step-2-datetime" class="booking-step">
+            <div class="step-header">
+                <button class="step-back-button" data-target="step-1-services" aria-label="Voltar">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="step-title">
+                    {% if business_model == 'delivery' %}
+                        Detalhes da Encomenda
+                    {% else %}
+                        Selecione a Data e Hora
+                    {% endif %}
+                </h2>
+            </div>
+            
+            <div id="item-preselected-summary" class="booking-summary" style="display: none;">
+                <p><strong>Item:</strong> <span id="summary-preselected-item">...</span></p>
+            </div>
+
+            <div class="calendar-container" id="calendar-container">
+                <div class="calendar-header">
+                    <button id="calendar-prev" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div id="calendar-month-year" class="calendar-month-year">...</div>
+                    <button id="calendar-next" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid">
+                    </div>
+            </div>
+
+            <div id="time-slots-container" class="time-slots-container">
+                <h3 id="time-slots-title" class="time-slots-title">Horários disponíveis</h3>
+                <div id="time-slots-grid" class="time-slots-grid"></div>
+            </div>
+            
+            <div id="delivery-details-container" style="display: none;">
+                <h3 class="step-title" style="font-size: 1.2rem; margin-bottom: 20px;">Como quer receber?</h3>
+                <div class="delivery-options">
+                    {% if shop.allow_delivery %}
+                    <div>
+                        <input type="radio" id="order-type-delivery" name="order-type" value="delivery" checked>
+                        <label for="order-type-delivery" class="list-item">
+                            <div class="list-item-content">
+                                <span class="radio-custom"><span class="dot"></span></span>
+                                <span class="list-item-label">Delivery (Entrega)</span>
+                            </div>
+                            <span class="list-item-icon" style="font-size: 1.3rem;"><i class="fa-solid fa-motorcycle"></i></span>
+                        </label>
+                    </div>
+                    {% endif %}
+                    
+                    {% if shop.allow_takeaway %}
+                    <div>
+                        <input type="radio" id="order-type-takeaway" name="order-type" value="takeaway" {% if not shop.allow_delivery %}checked{% endif %}>
+                        <label for="order-type-takeaway" class="list-item">
+                            <div class="list-item-content">
+                                <span class="radio-custom"><span class="dot"></span></span>
+                                <span class="list-item-label">Takeaway (Recolher)</span>
+                            </div>
+                            <span class="list-item-icon" style="font-size: 1.3rem;"><i class="fa-solid fa-store"></i></span>
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="form-group" id="delivery-address-group">
+                    <label for="client-address">Morada de Entrega</label>
+                    <textarea id="client-address" rows="3" placeholder="Av. 25 de Setembro, Bairro, Prédio..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-3-confirm" class="booking-step">
+            <div class="step-header">
+                <button class="step-back-button" data-target="step-2-datetime" aria-label="Voltar">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="step-title">Confirme os Seus Dados</h2>
+            </div>
+            
+            <div class="booking-summary">
+                <p id="summary-item-line"><strong>Item:</strong> <span id="summary-service">...</span></p>
+                <p id="summary-staff-line" style="display: none;"><strong>Profissional:</strong> <span id="summary-staff">Qualquer</span></p>
+                <p id="summary-date-line"><strong>Data:</strong> <span id="summary-date">...</span></p>
+                <p id="summary-time-line"><strong>Hora:</strong> <span id="summary-time">...</span></p>
+                <p id="summary-type-line" style="display: none;"><strong>Tipo:</strong> <span id="summary-order-type">...</span></p>
+                <p id="summary-address-line" style="display: none;"><strong>Morada:</strong> <span id="summary-order-address">...</span></p>
+                
+                <div id="price-summary-container">
+                    <p><strong>Preço Total:</strong> <span id="summary-total-price">...</span></p>
+                    <p><strong>Valor a Pagar Agora:</strong> <span id="summary-amount-to-pay" class="font-bold">...</span></p>
+                    <p><strong>Valor Restante (no local):</strong> <span id="summary-remaining">...</span></p>
+                </div>
+            </div>
+            
+            <div class="coupon-form">
+                <input type="text" id="coupon-code" placeholder="Código do cupão">
+                <button id="apply-coupon-btn">Aplicar</button>
+            </div>
+            
+            <div class="payment-options">
+                <h3 class="step-title" style="font-size: 1.1rem; margin-bottom: 15px;">Método de Pagamento</h3>
+                
+                {% set local_checked = payment_settings.allow_payment_local %}
+                {% set online_checked = not payment_settings.allow_payment_local and payment_settings.allow_payment_online %}
+
+                {% if payment_settings.allow_payment_local %}
+                <div id="pay-local-option" style="margin-top: 10px;">
+                    <input type="radio" id="pay-local" name="payment-method" value="local" {% if local_checked %}checked{% endif %}>
+                    <label for="pay-local" class="list-item">
+                        <div class="list-item-content">
+                            <span class="radio-custom"><span class="dot"></span></span>
+                            <span class="list-item-label">Pagar no Local</span>
+                        </div>
+                        <span class="list-item-icon" style="font-size: 1.3rem;"><i class="fa-solid fa-shop"></i></span>
+                    </label>
+                </div>
+                {% endif %}
+                
+                {% if payment_settings.allow_payment_online %}
+                <div id="pay-online-option" style="margin-top: 10px;">
+                    <input type="radio" id="pay-online" name="payment-method" value="online" {% if online_checked %}checked{% endif %}>
+                    <label for="pay-online" class="list-item">
+                        <div class="list-item-content">
+                            <span class="radio-custom"><span class="dot"></span></span>
+                            <span class="list-item-label">Pagar Agora (Online)</span>
+                        </div>
+                        <span class="list-item-icon" style="font-size: 1.3rem;"><i class="fa-solid fa-credit-card"></i></span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+            
+            <form id="confirmation-form" class="confirmation-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="client-name">O seu Nome</label>
+                    <input type="text" id="client-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-phone">O seu Telemóvel</label>
+                    <input type="tel" id="client-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-email">O seu Email (Opcional)</label>
+                    <input type="email" id="client-email">
+                </div>
+            </form>
+        </div>
+        
+        <div id="step-4-success" class="booking-step">
+            <div class="success-message">
+                <div class="icon"><i class="fa-solid fa-check-circle"></i></div>
+                <h2 id="success-title">Obrigado!</h2>
+                <p id="success-message">A sua marcação para <strong id="success-service">...</strong> no dia <strong id="success-date">...</strong> às <strong id="success-time">...</strong> está pendente de aprovação.</p>
+                <p class="ticket-details">O seu nº de ticket é <strong id="success-ticket">...</strong></p>
+                <button id="new-booking-button" class="cta-button">
+                    {% if business_model == 'delivery' %}
+                        Fazer Nova Encomenda
+                    {% else %}
+                        Fazer Nova Marcação
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+
+        <div class="cta-container" id="schedule-cta-container">
+            <button class="cta-button" id="cta-button" disabled>
+                Selecione um serviço
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ shop.descricao | default('Agende serviços e compre produtos online') }}">
+    
+    <title>Marcar em {{ shop.nome | default('A sua Loja') }}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shop.css') }}">
+
+    <style>
+        /* * INJEÇÃO DE TEMA DINÂMICO */
+        :root {
+            --theme-primary: {{ shop.theme_color | default('#3b82f6') }}; 
+            --theme-primary-text: #ffffff; 
+            --theme-light-bg: #f8f9fa;
+            --theme-dark-text: #1f2937;
+            --theme-light-text: #6b7280;
+            --theme-border: #e5e7eb;
+        }
+    </style>
+</head>
+<body data-slug="{{ shop.slug | default('loja-teste') }}" 
+      data-model="{{ business_model | default('agendamento') }}"
+      data-layout="{{ product_layout_style | default('lista') }}">
+    
+    <a href="#main-content" class="skip-link">Saltar para conteúdo principal</a>
+    
+    {% block content %}{% endblock %}
+    
+    <!-- Scripts Core -->
+    <script src="{{ url_for('static', filename='js/public/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/store.js') }}"></script>
+    
+    <!-- Scripts de Módulos -->
+    <script src="{{ url_for('static', filename='js/public/modules/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/booking.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/products.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/cart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/tickets.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/reviews.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/public/modules/blog.js') }}"></script>
+    
+<script src="{{ url_for('static', filename='js/public/modules/info.js') }}"></script>
+    <!-- Script Core (deve ser o último) -->
+    <script src="{{ url_for('static', filename='js/public/core.js') }}"></script>
+</body>
+</html>

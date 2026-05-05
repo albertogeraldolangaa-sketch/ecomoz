@@ -1,0 +1,34 @@
+<!-- Modal Upgrade de Plano -->
+<div id="modal-upgrade-plan" class="modal fixed inset-0 z-[60] hidden items-center justify-center p-4">
+    <div class="modal-overlay fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('modal-upgrade-plan')"></div>
+    <div class="modal-content w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden border-2 border-blue-100 dark:border-blue-900">
+        <div class="p-6 text-center">
+            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="rocket" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Limite do Plano Atingido</h3>
+            <p id="upgrade-msg-text" class="text-gray-600 dark:text-gray-300 mb-6">
+                Atingiu o limite de itens para o seu plano atual.
+            </p>
+            
+            <div class="space-y-3">
+                <button onclick="navigateTo('verificacao'); closeModal('modal-upgrade-plan')" class="w-full btn btn-primary py-3 shadow-lg shadow-blue-500/30">
+                    Fazer Upgrade Agora
+                </button>
+                <button onclick="closeModal('modal-upgrade-plan')" class="w-full btn btn-outline border-0">
+                    Talvez mais tarde
+                </button>
+            </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-900/50 p-3 text-center text-xs text-gray-500">
+            Desbloqueie lojas ilimitadas e stock infinito no plano Profissional.
+        </div>
+    </div>
+</div>
+
+<script>
+function showUpgradeModal(message) {
+    document.getElementById('upgrade-msg-text').textContent = message;
+    openModal('modal-upgrade-plan');
+}
+</script>

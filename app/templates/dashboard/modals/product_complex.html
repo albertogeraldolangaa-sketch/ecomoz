@@ -1,0 +1,214 @@
+<div id="modal-add-produto-complexo" class="modal fixed inset-0 z-50 hidden justify-end items-start flex">
+    
+    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-add-produto-complexo')"></div>
+
+    <div class="modal-slide-over w-full sm:w-[600px] lg:w-[800px] h-full flex flex-col bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 translate-x-full">
+        
+        <div class="modal-header-sticky px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-20">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Produto com Variações</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Passo <span id="modal-step-title">1</span> de 3</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-add-produto-complexo')" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center w-full gap-2">
+                <div class="h-1.5 flex-1 rounded-full bg-purple-600 transition-all duration-500 modal-step-indicator" data-step="1"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-gray-700 transition-all duration-500 modal-step-indicator" data-step="2"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-gray-700 transition-all duration-500 modal-step-indicator" data-step="3"></div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 scroll-smooth bg-gray-50/50 dark:bg-gray-900">
+            
+            <div class="modal-step active space-y-6 animate-fade-in" data-step="1">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-5">
+                    <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-purple-500"></i> Informações Gerais
+                    </h4>
+                    
+                    <div>
+                        <label class="form-label">Nome do Produto</label>
+                        <input type="text" id="prod_nome_complexo" class="form-input w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-800 transition-colors text-lg font-medium" placeholder="Ex: T-Shirt Estampada" required>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Descrição</label>
+                        <textarea id="prod_desc_complexo" rows="4" class="form-input w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 focus:border-purple-500 focus:bg-white dark:focus:bg-gray-800 transition-colors resize-none" placeholder="Detalhes do produto..."></textarea>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-5">
+                    <h4 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-4 h-4 text-purple-500"></i> Pagamento
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="form-label">Modo de Cobrança</label>
+                            <select id="prod_payment_mode_complexo" class="form-input w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-3 focus:border-purple-500 cursor-pointer" onchange="document.getElementById('prod_deposit_container_complexo').classList.toggle('hidden', this.value !== 'deposito')">
+                                <option value="integral">100% Integral</option>
+                                <option value="deposito">Sinal / Depósito</option>
+                            </select>
+                        </div>
+                        <div id="prod_deposit_container_complexo" class="hidden">
+                            <label class="form-label">Valor do Sinal</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3 text-gray-400 font-bold text-sm">MT</span>
+                                <input type="number" id="prod_deposit_value_complexo" class="form-input w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 pl-10 pr-4 py-3 focus:border-purple-500 font-bold" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-step hidden space-y-6 animate-fade-in" data-step="2">
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800/50 flex gap-3">
+                    <i data-lucide="sliders" class="w-5 h-5 text-purple-600 shrink-0 mt-0.5"></i>
+                    <div class="text-sm text-purple-900 dark:text-purple-200">
+                        <p class="font-bold">Como funciona?</p>
+                        <p class="opacity-90">Adicione opções como "Tamanho" ou "Cor". O sistema irá combinar todas as opções para criar as variantes finais.</p>
+                    </div>
+                </div>
+
+                <div id="complex-options-list" class="space-y-4">
+                    </div>
+
+                <button type="button" onclick="addComplexOption()" class="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-gray-500 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all flex items-center justify-center gap-2 font-medium">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                    Adicionar Opção (Ex: Cor)
+                </button>
+
+                <div class="flex justify-center pt-4">
+                    <button type="button" onclick="generateVariants()" class="btn-primary-pro bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 px-6 py-3 rounded-xl shadow-lg shadow-gray-200 dark:shadow-none transition-transform active:scale-95 flex items-center gap-2">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        Gerar Combinações
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-step hidden space-y-6 animate-fade-in" data-step="3">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-lg font-bold text-gray-900 dark:text-white">Inventário Gerado</h4>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-medium dark:bg-green-900/30 dark:text-green-400">Auto-Guardar</span>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 text-xs uppercase font-semibold text-gray-500">
+                                <tr>
+                                    <th class="px-6 py-4">Variante</th>
+                                    <th class="px-4 py-4 w-32">Preço</th>
+                                    <th class="px-4 py-4 w-24">Stock</th>
+                                    <th class="px-4 py-4 w-32">Ref/SKU</th>
+                                </tr>
+                            </thead>
+                            <tbody id="variants-table-body" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 mt-4">
+                    <div class="w-12 h-12 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400">
+                        <i data-lucide="package" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white" id="preview-product-name">Nome do Produto</p>
+                        <p class="text-xs text-gray-500" id="preview-product-price">A partir de 0.00 MT</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer-sticky px-6 py-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 z-20 flex justify-between items-center">
+            
+            <button type="button" id="modal-btn-voltar" onclick="handleComplexModalFlow(-1)" class="hidden px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+            </button>
+            
+            <div class="flex gap-3 ml-auto">
+                <button type="button" onclick="closeModal('modal-add-produto-complexo')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+                    Cancelar
+                </button>
+                
+                <button type="button" id="modal-btn-proximo" onclick="handleComplexModalFlow(1)" class="btn-primary-pro px-8 py-2.5 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/30 transition-transform active:scale-95 flex items-center gap-2">
+                    Seguinte <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+                
+                <button type="button" id="modal-btn-publicar" onclick="publishComplexProduct()" class="hidden btn-primary-pro px-8 py-2.5 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/30 transition-transform active:scale-95 flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i> Publicar Produto
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* Estilos específicos para a animação do stepper */
+    .modal-step-indicator.active {
+        background-color: #9333ea; /* purple-600 */
+    }
+    .modal-step-indicator.inactive {
+        background-color: #e5e7eb; /* gray-200 */
+    }
+    .dark .modal-step-indicator.inactive {
+        background-color: #374151; /* gray-700 */
+    }
+    
+    /* Animação suave de fade para os passos */
+    @keyframes fadeInStep {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fadeInStep 0.4s ease-out forwards;
+    }
+</style>
+
+<script>
+    // Pequeno script para atualizar visualmente o stepper quando o JS principal muda o passo
+    // Este observador garante que as barras de progresso acompanhem a lógica do products_complex.js
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const stepElements = document.querySelectorAll('.modal-step');
+                let activeIndex = 0;
+                
+                stepElements.forEach((el, index) => {
+                    if (el.classList.contains('active')) {
+                        activeIndex = index + 1;
+                    }
+                });
+
+                // Atualiza as barras
+                document.querySelectorAll('.modal-step-indicator').forEach(bar => {
+                    const barStep = parseInt(bar.dataset.step);
+                    if (barStep <= activeIndex) {
+                        bar.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                        bar.classList.add('bg-purple-600');
+                    } else {
+                        bar.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                        bar.classList.remove('bg-purple-600');
+                    }
+                });
+            }
+        });
+    });
+
+    // Observa mudanças nas classes dos passos
+    document.querySelectorAll('.modal-step').forEach(step => {
+        observer.observe(step, { attributes: true });
+    });
+</script>

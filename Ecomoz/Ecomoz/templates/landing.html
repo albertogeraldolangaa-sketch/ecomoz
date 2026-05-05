@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarcaçãoPro - Agendamento Profissional via QR Code em Moçambique</title>
+    
+    <!-- Importar Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Importar Google Font (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Importar GSAP (Core) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <!-- Importar GSAP (ScrollTrigger Plugin) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    
+    <!-- Importar GSAP (Flip Plugin) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+
+    <!-- Configuração do Tailwind (para a fonte Inter) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'pulse-slow': {
+                          '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                          '50%': { opacity: .9, transform: 'scale(1.02)' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <!-- Estilos para Animação de Flutuar (Mais Suave) -->
+    <style>
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); } /* Movimento mais subtil */
+          100% { transform: translateY(0px); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="font-inter antialiased text-gray-800 bg-white">
+
+    <!-- ===== Cabeçalho (Header) ===== -->
+    <header class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm border-b border-gray-200/50 shadow-sm gsap-header opacity-0">
+        <nav class="container mx-auto max-w-7xl px-6 lg:px-8 py-4" aria-label="Global">
+            <div class="flex justify-between items-center">
+                <!-- Logotipo -->
+                <a href="/" class="text-2xl font-bold text-gray-900 -m-1.5 p-1.5">
+                    Marcação<span id="logo-color" class="text-red-600 transition-colors duration-1000">Pro</span>
+                </a>
+                
+                <!-- Botão Hamburger (Mobile) -->
+                <div class="flex lg:hidden">
+                    <button type="button" id="mobile-menu-button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Abrir menu principal</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Links de Navegação (Desktop) -->
+                <div class="hidden lg:flex lg:gap-x-10">
+                    <a href="#features" class="nav-link text-sm font-semibold leading-6 text-gray-700 hover:text-red-600 transition-colors duration-300">Funcionalidades</a>
+                    <a href="/precos" class="nav-link text-sm font-semibold leading-6 text-gray-700 hover:text-red-600 transition-colors duration-300">Preços</a>
+                    <a href="/sobre" class="nav-link text-sm font-semibold leading-6 text-gray-700 hover:text-red-600 transition-colors duration-300">Sobre Nós</a>
+                    <a href="/contacto" class="nav-link text-sm font-semibold leading-6 text-gray-700 hover:text-red-600 transition-colors duration-300">Contacto</a>
+                </div>
+                
+                <!-- Botão CTA (Desktop) -->
+                <div class="hidden lg:flex">
+                    <!-- Link aponta para a página de login, com um parâmetro para mostrar o formulário de registo -->
+                    <a id="header-cta-button" href="/login?action=register" class="rounded-md bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all duration-300 transform hover:scale-105">
+                        Experimente Grátis
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 
+        ============================================================
+        PAINEL DE MENU MOBILE (Novo)
+        Isto estava em falta no seu original.
+        ============================================================
+        -->
+        <div id="mobile-menu" class="lg:hidden hidden" role="dialog" aria-modal="true">
+            <!-- Overlay -->
+            <div class="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm" aria-hidden="true"></div>
+            
+            <!-- Painel -->
+            <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-4 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+                <div class="flex items-center justify-between">
+                    <a href="/" class="-m-1.5 p-1.5">
+                        <span class="sr-only">MarcaçãoPro</span>
+                        <span class="text-2xl font-bold text-gray-900">Marcação<span id="mobile-logo-color" class="text-red-600 transition-colors duration-1000">Pro</span></span>
+                    </a>
+                    <button type="button" id="close-menu-button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
+                        <span class="sr-only">Fechar menu</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-6 flow-root">
+                    <div class="-my-6 divide-y divide-gray-500/10">
+                        <div class="space-y-2 py-6">
+                            <a href="#features" class="nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Funcionalidades</a>
+                            <a href="/precos" class="nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Preços</a>
+                            <a href="/sobre" class="nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Sobre Nós</a>
+                            <a href="/contacto" class="nav-link -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Contacto</a>
+                        </div>
+                        <div class="py-6">
+                            <a href="/login?action=register" class="w-full text-center block rounded-md bg-red-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                                Experimente Grátis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="isolate">
+    
+        <!-- ===== Secção Hero ===== -->
+        <section id="hero-background" class="relative bg-gradient-to-b from-red-50 via-white to-white gsap-hero-section overflow-hidden transition-colors duration-1000">
+            <div class="container mx-auto max-w-7xl px-6 lg:px-8 pt-24 pb-32 sm:pt-32 sm:pb-40">
+                <div class="mx-auto max-w-3xl text-center">
+                    
+                    <!-- Título (Preparado para animação de "spin-in") -->
+                    <h1 id="hero-title" class="text-5xl font-black text-gray-900 sm:text-6xl lg:text-7xl tracking-tight gsap-hero-title">
+                        <span class="inline-block word-span">Agendamento</span>
+                        <span class="inline-block word-span"><span class="text-red-600">Simples</span></span>
+                        <span class="inline-block word-span">com</span>
+                        <span class="inline-block word-span">QR</span>
+                        <span class="inline-block word-span">Code</span>
+                    </h1>
+                    
+                    <!-- Subtítulo -->
+                    <p id="hero-subtitle" class="mt-6 text-xl leading-8 text-gray-600 gsap-hero-subtitle">
+                        A plataforma líder em Moçambique para profissionais e clientes. Elimine filas, gira a sua agenda e ofereça conveniência imediata.
+                    </p>
+                    
+                    <!-- Botões CTA -->
+                    <div class="mt-10 flex items-center justify-center gap-x-6 gsap-hero-cta">
+                        <a id="hero-cta-button" href="/login?action=register" class="rounded-md bg-red-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all duration-300 transform hover:scale-105 animate-pulse-slow">
+                            Comece Já (Grátis)
+                        </a>
+                        <a id="hero-cta-link" href="#features" class="text-lg font-semibold leading-6 text-red-600 hover:text-red-800 transition-colors duration-300">
+                            Saber Mais <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Imagem/Ilustração Hero (Animação "Morph") -->
+                <div class="mt-16 flow-root sm:mt-24 gsap-hero-image">
+                    <div class="relative w-full h-80 sm:h-96 max-w-xl mx-auto">
+                        <!-- Imagem 1 (Visível) -->
+                        <img id="hero-image-1" 
+                             src="https://placehold.co/600x600/e2e8f0/94a3b8?text=App+Geral+PNG" 
+                             alt="Demonstração da aplicação MarcaçãoPro" 
+                             onerror="this.src='https://placehold.co/600x600/e2e8f0/94a3b8?text=Imagem+App'"
+                             class="absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out opacity-100 scale-100">
+                        <!-- Imagem 2 (Oculta) -->
+                        <img id="hero-image-2" 
+                             src="https://placehold.co/600x600/e2e8f0/94a3b8?text=Barbeiro+PNG" 
+                             alt="Demonstração para Barbearias" 
+                             onerror="this.src='https://placehold.co/600x600/e2e8f0/94a3b8?text=Imagem+Barbeiro'"
+                             class="absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out opacity-0 scale-95">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Secção de Funcionalidades (Features) ===== -->
+        <section id="features" class="features-section bg-red-50 py-20 sm:py-28 gsap-features-section transition-colors duration-1000">
+            <div class="container mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="mx-auto max-w-2xl lg:text-center">
+                    <p class="features-highlight text-base font-semibold leading-7 text-red-600 transition-colors duration-1000">Tudo o que precisa</p>
+                    <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                        Uma plataforma, controlo total
+                    </h2>
+                    <p class="mt-6 text-lg leading-8 text-gray-600">
+                        Desde o agendamento instantâneo por QR code até à gestão de clientes, o MarcaçãoPro centraliza a sua operação.
+                    </p>
+                </div>
+                <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+                    <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+                        
+                        <!-- Feature 1 (Com hover) -->
+                        <div class="flex flex-col opacity-0 gsap-feature-item rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-white/50">
+                            <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
+                                <span class="features-icon-bg flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors duration-1000">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                                </span>
+                                Agendamento Rápido
+                            </dt>
+                            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                                <p class="flex-auto">Clientes marcam em segundos. O seu QR code é a porta de entrada para a sua agenda, disponível 24/7.</p>
+                            </dd>
+                        </div>
+                        
+                        <!-- Feature 2 (Com hover) -->
+                        <div class="flex flex-col opacity-0 gsap-feature-item rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-white/50">
+                            <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
+                                <span class="features-icon-bg flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors duration-1000">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M7 11h.01"/><path d="M7 15h.01"/><path d="M11 7h.01"/><path d="M11 11h.01"/><path d="M11 15h.01"/><path d="M15 7h.01"/><path d="M15 11h.01"/><path d="M15 15h.01"/></svg>
+                                </span>
+                                QR Code Personalizado
+                            </dt>
+                            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                                <p class="flex-auto">Receba um QR code único para o seu negócio. Coloque-o na sua porta, balcão, website ou redes sociais.</p>
+                            </dd>
+                        </div>
+                        
+                        <!-- Feature 3 (Com hover) -->
+                        <div class="flex flex-col opacity-0 gsap-feature-item rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-white/50">
+                            <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
+                                <span class="features-icon-bg flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors duration-1000">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                                </span>
+                                Lembretes Automáticos
+                            </dt>
+                            <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                                <p class="flex-auto">Reduza faltas com lembretes automáticos via SMS ou WhatsApp, mantendo os seus clientes informados.</p>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Secção Carrossel de Funcionalidades (Tabs) ===== -->
+        <section class="carousel-section bg-gradient-to-b from-red-100 via-white to-white py-24 sm:py-32 gsap-features-carousel-section overflow-hidden transition-colors duration-1000">
+            <div class="container mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="mx-auto max-w-4xl text-center">
+                    <p class="carousel-highlight text-base font-semibold leading-7 text-red-600 transition-colors duration-1000">Veja em Ação</p>
+                    <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                        Como funciona o <span id="carousel-logo-highlight" class="text-red-600 transition-colors duration-1000">MarcaçãoPro</span>
+                    </h2>
+                </div>
+
+                <div class="mt-16 relative">
+                    <!-- Slides Container -->
+                    <div class="relative h-[650px] md:h-[600px]">
+                        <!-- Slide 1: Gestão de Agenda -->
+                        <div class="features-slide absolute inset-0 w-full h-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-4">
+                            <!-- Texto Slide 1 -->
+                            <div class="features-text w-full md:w-1/2 max-w-md text-center md:text-left">
+                                <span class="carousel-step-pill inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition-colors duration-1000">Passo 1: Gestão</span>
+                                <h3 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+                                    Controle total da sua Agenda
+                                </h3>
+                                <p class="mt-4 text-lg text-gray-600">
+                                    Defina os seus horários de trabalho, serviços, preços e tempos de duração. Bloqueie datas, gira férias e tenha uma visão clara do seu dia.
+                                </p>
+                            </div>
+                            <!-- Imagem Slide 1 (COM ANIMAÇÃO FLUTUAR) -->
+                            <div class="features-image-wrapper w-full md:w-1/2 max-w-md animate-float">
+                                <img src="https://placehold.co/600x450/f0f0f0/a0a0a0?text=Gest%C3%A3o+de+Agenda+Profissional" 
+                                     alt="Gestão de Agenda" class="rounded-xl shadow-2xl"
+                                     onerror="this.src='https://placehold.co/600x450/f0f0f0/a0a0a0?text=Gest%C3%A3o+de+Agenda'">
+                            </div>
+                        </div>
+
+                        <!-- Slide 2: QR Code -->
+                        <div class="features-slide absolute inset-0 w-full h-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-4" style="opacity: 0; visibility: hidden;">
+                            <!-- Texto Slide 2 -->
+                            <div class="features-text w-full md:w-1/2 max-w-md text-center md:text-left">
+                                <span class="carousel-step-pill inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition-colors duration-1000">Passo 2: Partilha</span>
+                                <h3 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+                                    Partilhe o seu QR Code
+                                </h3>
+                                <p class="mt-4 text-lg text-gray-600">
+                                    O cliente lê o seu QR code único com a câmara do telemóvel e é instantaneamente levado para a sua página de agendamento.
+                                </p>
+                            </div>
+                            <!-- Imagem Slide 2 (COM ANIMAÇÃO FLUTUAR) -->
+                            <div class="features-image-wrapper w-full md:w-1/2 max-w-md animate-float">
+                                <img src="https://placehold.co/600x450/f0f0f0/a0a0a0?text=Leitura+de+QR+Code" 
+                                     alt="Leitura de QR Code" class="rounded-xl shadow-2xl"
+                                     onerror="this.src='https://placehold.co/600x450/f0f0f0/a0a0a0?text=Leitura+de+QR+Code'">
+                            </div>
+                        </div>
+
+                        <!-- Slide 3: Agendamento Cliente -->
+                        <div class="features-slide absolute inset-0 w-full h-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-4" style="opacity: 0; visibility: hidden;">
+                            <!-- Texto Slide 3 -->
+                            <div class="features-text w-full md:w-1/2 max-w-md text-center md:text-left">
+                                <span class="carousel-step-pill inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition-colors duration-1000">Passo 3: Marcação</span>
+                                <h3 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+                                    Cliente escolhe o horário
+                                </h3>
+                                <p class="mt-4 text-lg text-gray-600">
+                                    O cliente vê os seus serviços e horários livres em tempo real. Escolhe o que precisa, preenche dados básicos e confirma.
+                                </p>
+                            </div>
+                            <!-- Imagem Slide 3 (COM ANIMAÇÃO FLUTUAR) -->
+                            <div class="features-image-wrapper w-full md:w-1/2 max-w-md animate-float">
+                                <img src="https://placehold.co/600x450/f0f0f0/a0a0a0?text=Ecr%C3%A3+de+Marca%C3%A7%C3%A3o+do+Cliente" 
+                                     alt="Cliente a agendar" class="rounded-xl shadow-2xl"
+                                     onerror="this.src='https://placehold.co/600x450/f0f0f0/a0a0a0?text=Ecr%C3%A3+de+Marca%C3%A7%C3%A3o'">
+                            </div>
+                        </div>
+
+                        <!-- Slide 4: Confirmação -->
+                        <div class="features-slide absolute inset-0 w-full h-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-4" style="opacity: 0; visibility: hidden;">
+                            <!-- Texto Slide 4 -->
+                            <div class="features-text w-full md:w-1/2 max-w-md text-center md:text-left">
+                                <span class="carousel-step-pill inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition-colors duration-1000">Passo 4: Confirmado!</span>
+                                <h3 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+                                    Confirmação Imediata
+                                </h3>
+                                <p class="mt-4 text-lg text-gray-600">
+                                    Você recebe uma notificação instantânea e o cliente recebe a confirmação. Ambos recebem lembretes antes da marcação.
+                                </p>
+                            </div>
+                            <!-- Imagem Slide 4 (COM ANIMAÇÃO FLUTUAR) -->
+                            <div class="features-image-wrapper w-full md:w-1/2 max-w-md animate-float">
+                                <img src="https://placehold.co/600x450/f0f0f0/a0a0a0?text=Confirma%C3%A7%C3%A3o+e+Lembrete" 
+                                     alt="Confirmação de Agendamento" class="rounded-xl shadow-2xl"
+                                     onerror="this.src='https://placehold.co/600x450/f0f0f0/a0a0a0?text=Confirma%C3%A7%C3%A3o'">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Navegação do Carrossel -->
+                    <div class="absolute inset-x-0 bottom-0 md:bottom-1/2 md:translate-y-1/2 flex justify-between px-4">
+                        <button id="prev-slide" class="carousel-nav-button p-3 rounded-full bg-white shadow-lg text-red-600 hover:bg-red-50 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Slide anterior">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <button id="next-slide" class="carousel-nav-button p-3 rounded-full bg-white shadow-lg text-red-600 hover:bg-red-50 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Próximo slide">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Secção de Testemunhos ===== -->
+        <section class="bg-white py-24 sm:py-32">
+            <div class="container mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="mx-auto max-w-2xl text-center">
+                    <h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                        O que dizem os nossos clientes
+                    </h2>
+                    <p class="mt-6 text-lg leading-8 text-gray-600">
+                        Profissionais reais, resultados reais. Veja como o MarcaçãoPro mudou o jogo.
+                    </p>
+                </div>
+                <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                    
+                    <!-- Testemunho 1 (Com animação scroll) -->
+                    <article class="flex flex-col items-start justify-between opacity-0 gsap-testimonial-item">
+                        <div class="relative w-full">
+                            <div class="relative rounded-2xl bg-gray-50 p-8 ring-1 ring-gray-900/10">
+                                <p class="text-lg leading-7 text-gray-700">"Desde que uso o MarcaçãoPro, as faltas diminuíram 80%. Os clientes adoram a facilidade de marcar pelo QR code na porta."</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center gap-x-4">
+                            <img class="h-12 w-12 rounded-full bg-gray-100 object-cover" 
+                                 src="https://placehold.co/100x100/e0e0e0/9e9e9e?text=JS" 
+                                 alt="Foto do cliente Júlio Silva"
+                                 onerror="this.src='https://placehold.co/100x100/e0e0e0/9e9e9e?text=JS'">
+                            <div class="text-sm leading-6">
+                                <p class="font-semibold text-gray-900">Júlio Silva</p>
+                                <p class="text-gray-600">Dono, Barbearia Navalha de Ouro</p>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <!-- Testemunho 2 (Com animação scroll) -->
+                    <article class="flex flex-col items-start justify-between opacity-0 gsap-testimonial-item">
+                        <div class="relative w-full">
+                            <div class="relative rounded-2xl bg-gray-50 p-8 ring-1 ring-gray-900/10">
+                                <p class="text-lg leading-7 text-gray-700">"A gestão da agenda era um caos. Agora, tenho controlo total dos meus horários e dos meus assistentes. Recomendo 100%."</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center gap-x-4">
+                            <img class="h-12 w-12 rounded-full bg-gray-100 object-cover" 
+                                 src="https://placehold.co/100x100/e0e0e0/9e9e9e?text=MC" 
+                                 alt="Foto da cliente Maria Costa"
+                                 onerror="this.src='https://placehold.co/100x100/e0e0e0/9e9e9e?text=MC'">
+                            <div class="text-sm leading-6">
+                                <p class="font-semibold text-gray-900">Maria Costa</p>
+                                <p class="text-gray-600">Gestora, Clínica Sorriso Perfeito</p>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <!-- Testemunho 3 (Com animação scroll) -->
+                    <article class="flex flex-col items-start justify-between opacity-0 gsap-testimonial-item">
+                        <div class="relative w-full">
+                            <div class="relative rounded-2xl bg-gray-50 p-8 ring-1 ring-gray-900/10">
+                                <p class="text-lg leading-7 text-gray-700">"Finalmente uma solução que funciona em Moçambique. É simples para mim e super moderna para as minhas clientes."</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center gap-x-4">
+                            <img class="h-12 w-12 rounded-full bg-gray-100 object-cover" 
+                                 src="https://placehold.co/100x100/e0e0e0/9e9e9e?text=AR" 
+                                 alt="Foto da cliente Ana Rodrigues"
+                                 onerror="this.src='https://placehold.co/100x100/e0e0e0/9e9e9e?text=AR'">
+                            <div class="text-sm leading-6">
+                                <p class="font-semibold text-gray-900">Ana Rodrigues</p>
+                                <p class="text-gray-600">Esteticista, Beleza Pura</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ===== Secção CTA (Call to Action) ===== -->
+        <section class="cta-section bg-gradient-to-b from-white to-red-50 py-24 sm:py-32 gsap-cta-section transition-colors duration-1000">
+            <div class="container mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="mx-auto max-w-2xl text-center">
+                    <h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                        Pronto para transformar o seu negócio?
+                    </h2>
+                    <p class="mt-6 text-lg leading-8 text-gray-600">
+                        Comece gratuitamente. Sem cartão de crédito, sem compromisso. Veja o poder do agendamento simplificado hoje mesmo.
+                    </p>
+                    <div class="mt-10 flex items-center justify-center gap-x-6">
+                        <a id="footer-cta-button" href="/login?action=register" class="rounded-md bg-red-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all duration-300 transform hover:scale-105 animate-pulse-slow">
+                            Criar a minha conta Grátis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
+    </main>
+
+    <!-- ===== Rodapé (Footer) ===== -->
+    <footer class="bg-white" aria-labelledby="footer-heading">
+        <h2 id="footer-heading" class="sr-only">Rodapé</h2>
+        <div class="container mx-auto max-w-7xl px-6 pb-8 pt-16 lg:px-8">
+            <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+                <!-- Logo e Descrição -->
+                <div class="space-y-8">
+                    <a href="/" class="text-3xl font-bold text-gray-900">
+                        Marcação<span id="footer-logo-color" class="text-red-600 transition-colors duration-1000">Pro</span>
+                    </a>
+                    <p class="text-sm leading-6 text-gray-600">
+                        Simplificando agendamentos em Moçambique com tecnologia QR code.
+                    </p>
+                    <div class="flex space-x-6">
+                        <!-- Links Sociais (Exemplos) -->
+                        <a href="#" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">Facebook</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">Instagram</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.47 2.525c.636-.247 1.363-.416 2.427-.465C8.93 2.013 9.284 2 12.315 2zM12 7.042c-2.733 0-4.958 2.225-4.958 4.958S9.267 16.958 12 16.958 16.958 14.733 16.958 12 14.733 7.042 12 7.042zM12 14.803c-1.546 0-2.8-1.254-2.8-2.8s1.254-2.8 2.8-2.8 2.8 1.254 2.8 2.8-1.254 2.8-2.8 2.8zM18.803 6.11a1.28 1.28 0 11-2.56 0 1.28 1.28 0 012.56 0z" clip-rule="evenodd" /></svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Links do Rodapé -->
+                <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+                    <div class="md:grid md:grid-cols-2 md:gap-8">
+                        <div>
+                            <h3 class="text-sm font-semibold leading-6 text-gray-900">Soluções</h3>
+                            <ul role="list" class="mt-6 space-y-4">
+                                <li><a href="#" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Barbearias</a></li>
+                                <li><a href="#" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Salões de Beleza</a></li>
+                                <li><a href="#" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Clínicas</a></li>
+                                <li><a href="#" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Serviços</a></li>
+                            </ul>
+                        </div>
+                        <div class="mt-10 md:mt-0">
+                            <h3 class="text-sm font-semibold leading-6 text-gray-900">Recursos</h3>
+                            <ul role="list" class="mt-6 space-y-4">
+                                <li><a href="/precos" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Preços</a></li>
+                                <li><a href="/blog" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Blog</a></li>
+                                <li><a href="/faq" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Ajuda (FAQ)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="md:grid md:grid-cols-2 md:gap-8">
+                        <div>
+                            <h3 class="text-sm font-semibold leading-6 text-gray-900">Empresa</h3>
+                            <ul role="list" class="mt-6 space-y-4">
+                                <li><a href="/sobre" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Sobre Nós</a></li>
+                                <li><a href="/contacto" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Contacto</a></li>
+                                <li><a href="/carreiras" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Trabalhe Connosco</a></li>
+                            </ul>
+                        </div>
+                        <div class="mt-10 md:mt-0">
+                            <h3 class="text-sm font-semibold leading-6 text-gray-900">Legal</h3>
+                            <ul role="list" class="mt-6 space-y-4">
+                                <li><a href="/privacidade" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Privacidade</a></li>
+                                <li><a href="/termos" class="text-sm leading-6 text-gray-600 hover:text-gray-900">Termos de Uso</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Linha de Copyright -->
+            <div class="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
+                <p class="text-xs leading-5 text-gray-500">&copy; 2025 MarcaçãoPro. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ===== Scripts GSAP e Lógica do Menu ===== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.registerPlugin(ScrollTrigger, Flip);
+
+            // --- LÓGICA DO MENU MOBILE (Novo) ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMenuButton = document.getElementById('close-menu-button');
+            
+            function openMobileMenu() {
+                mobileMenu.classList.remove('hidden');
+            }
+            
+            function closeMobileMenu() {
+                mobileMenu.classList.add('hidden');
+            }
+
+            mobileMenuButton.addEventListener('click', openMobileMenu);
+            closeMenuButton.addEventListener('click', closeMobileMenu);
+            // Fecha o menu se clicar num link dentro dele (para navegação na página)
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+            // --- Fim da Lógica do Menu Mobile ---
+
+
+            // --- LÓGICA DE ANIMAÇÃO (Original, mantida) ---
+            const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            if (isReducedMotion) {
+                // Remove animações se o utilizador preferir
+                gsap.set([
+                    ".gsap-header", ".word-span", ".gsap-hero-subtitle", ".gsap-hero-cta", ".gsap-hero-image", 
+                    ".gsap-feature-item", ".gsap-testimonial-item"
+                ], { opacity: 1, y: 0, scale: 1, rotationZ: 0 });
+                
+                document.querySelectorAll('.animate-float').forEach(el => el.classList.remove('animate-float'));
+                document.querySelectorAll('.animate-pulse-slow').forEach(el => el.classList.remove('animate-pulse-slow'));
+                
+                return; // Não executa o resto das animações
+            }
+
+            // --- Animação 0: "Morph" do Hero e Tema ---
+            const heroStates = [
+                {
+                    title: (color) => `<span class="inline-block">Agendamento</span> <span class="inline-block"><span class="text-${color}-600">Simples</span></span> <span class="inline-block">com</span> <span class="inline-block">QR</span> <span class="inline-block">Code</span>`,
+                    subtitle: "A plataforma líder em Moçambique para profissionais e clientes. Elimine filas e gira a sua agenda.",
+                    image: "https://placehold.co/600x600/e2e8f0/94a3b8?text=App+Geral+PNG",
+                    color: "red"
+                },
+                {
+                    title: (color) => `<span class="inline-block">Perfeito</span> <span class="inline-block">para</span> <span class="inline-block"><span class="text-${color}-600">Barbearias</span></span> <span class="inline-block">e</span> <span class="inline-block">Salões</span>`,
+                    subtitle: "Gira as suas cadeiras, envie lembretes automáticos e veja a sua agenda encher.",
+                    image: "https://placehold.co/600x600/e2e8f0/94a3b8?text=Barbeiro+PNG",
+                    color: "sky" // Azul
+                },
+                {
+                    title: (color) => `<span class="inline-block">Ideal</span> <span class="inline-block">para</span> <span class="inline-block"><span class="text-${color}-600">Clínicas</span></span> <span class="inline-block">e</span> <span class="inline-block">Terapeutas</span>`,
+                    subtitle: "Gestão de pacientes, horários flexíveis e uma experiência profissional do início ao fim.",
+                    image: "https://placehold.co/600x600/e2e8f0/94a3b8?text=Cl%C3%ADnica+PNG",
+                    color: "emerald" // Verde
+                }
+            ];
+
+            let currentHeroIndex = 0;
+            let isImg1Active = true;
+
+            const heroTitle = document.getElementById("hero-title");
+            const heroSubtitle = document.getElementById("hero-subtitle");
+            const img1 = document.getElementById("hero-image-1");
+            const img2 = document.getElementById("hero-image-2");
+
+            function updateThemeColor(oldColor, newColor) {
+                // Seleciona todos os elementos que têm a cor antiga
+                const elements = document.querySelectorAll(`
+                    [class*="-${oldColor}-"], 
+                    #logo-color, 
+                    #mobile-logo-color,
+                    #carousel-logo-highlight, 
+                    #footer-logo-color
+                `);
+                
+                elements.forEach(el => {
+                    // Regex para substituir cores do Tailwind
+                    const regex = new RegExp(`(bg|text|from|to|outline|ring|hover:text|hover:bg|focus:ring)-${oldColor}-(\\d+)`, 'g');
+                    el.className = el.className.replace(regex, `$1-${newColor}-$2`);
+                    
+                    // Regex específico para os logos e highlights
+                    const logoRegex = new RegExp(`(text)-${oldColor}-(600)`, 'g');
+                    el.className = el.className.replace(logoRegex, `$1-${newColor}-$2`);
+                });
+            }
+
+            setInterval(() => {
+                const oldColor = heroStates[currentHeroIndex].color;
+                
+                currentHeroIndex = (currentHeroIndex + 1) % heroStates.length;
+                const newState = heroStates[currentHeroIndex];
+                const newColor = newState.color;
+
+                const activeImg = isImg1Active ? img1 : img2;
+                const hiddenImg = isImg1Active ? img2 : img1;
+
+                gsap.to([heroTitle, heroSubtitle], { 
+                    opacity: 0, 
+                    y: -15, 
+                    duration: 0.7, 
+                    ease: "power3.in" 
+                });
+
+                gsap.to(activeImg, { 
+                    opacity: 0, 
+                    scale: 0.95, 
+                    duration: 1.0, 
+                    ease: "power3.inOut" 
+                });
+                
+                hiddenImg.src = newState.image; 
+                
+                gsap.to(hiddenImg, { 
+                    opacity: 1, 
+                    scale: 1.0, 
+                    duration: 1.0, 
+                    ease: "power3.inOut" 
+                });
+
+                gsap.delayedCall(0.7, () => {
+                    heroTitle.innerHTML = newState.title(newColor);
+                    heroSubtitle.innerText = newState.subtitle;
+                    
+                    updateThemeColor(oldColor, newColor);
+                    
+                    gsap.to([heroTitle, heroSubtitle], { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.7, 
+                        ease: "power3.out" 
+                    });
+                });
+
+                isImg1Active = !isImg1Active;
+
+            }, 8000); // Reduzi o tempo para 8s para a demo
+
+
+            // --- Animação 1: Carregamento da Página (com "Girar" e "Spin") ---
+            gsap.set(".gsap-header", { opacity: 0, y: -30 });
+            gsap.set(".word-span", { opacity: 0, y: 50, rotationZ: -30 });
+            gsap.set([".gsap-hero-subtitle", ".gsap-hero-cta"], { opacity: 0, y: 30 });
+            gsap.set(".gsap-hero-image", { opacity: 0, scale: 0.9 });
+
+            const loadTl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 }, delay: 0.3 });
+
+            loadTl.to(".gsap-header", { opacity: 1, y: 0 })
+                  .to(".word-span", {
+                      opacity: 1,
+                      y: 0,
+                      rotationZ: 0,
+                      stagger: 0.1,
+                      duration: 0.6
+                  }, "-=0.6")
+                  .to([".gsap-hero-subtitle", ".gsap-hero-cta"], {
+                      opacity: 1,
+                      y: 0,
+                      stagger: 0.1
+                  }, "-=0.4")
+                  .to(".gsap-hero-image", {
+                      opacity: 1,
+                      scale: 1,
+                      duration: 1.2
+                  }, "-=0.6");
+
+
+            // --- Animação 2: Features Section (ScrollTrigger) ---
+            gsap.utils.toArray(".gsap-feature-item").forEach((item) => {
+                gsap.from(item, {
+                    opacity: 0,
+                    y: 60,
+                    scale: 0.9,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%", 
+                        toggleActions: "play none none none",
+                    }
+                });
+            });
+            
+            // --- Animação 3: Testimonials (ScrollTrigger) ---
+            gsap.utils.toArray(".gsap-testimonial-item").forEach((item, index) => {
+                gsap.from(item, {
+                    opacity: 0,
+                    y: 60,
+                    scale: 0.9,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%",
+                        toggleActions: "play none none none",
+                        delay: index * 0.1
+                    }
+                });
+            });
+
+            // --- Animação 4: Carrossel de Funcionalidades ---
+            const featuresSlides = gsap.utils.toArray(".features-slide");
+            const totalSlides = featuresSlides.length;
+            let currentIndex = 0;
+            const prevButton = document.getElementById("prev-slide");
+            const nextButton = document.getElementById("next-slide");
+
+            function animateSlide(oldIndex, newIndex, direction) {
+                const oldSlide = featuresSlides[oldIndex];
+                const newSlide = featuresSlides[newIndex];
+                
+                const oldText = oldSlide.querySelector(".features-text");
+                const oldImage = oldSlide.querySelector(".features-image-wrapper");
+                const newText = newSlide.querySelector(".features-text");
+                const newImage = newSlide.querySelector(".features-image-wrapper");
+
+                const xPercent = direction === 'next' ? 100 : -100;
+                
+                const tl = gsap.timeline({ defaults: { duration: 0.8, ease: "power3.inOut" } });
+
+                tl.to(oldText, { opacity: 0, x: -xPercent * 0.5, scale: 0.95 })
+                  .to(oldImage, { opacity: 0, x: xPercent, scale: 0.9 }, 0)
+                  .set(oldSlide, { visibility: 'hidden' });
+                
+                tl.set(newSlide, { visibility: 'visible' })
+                  .from(newText, { opacity: 0, x: xPercent * 0.5, scale: 0.95 }, "-=0.5")
+                  .from(newImage, { opacity: 0, x: -xPercent, scale: 0.9 }, "-=0.8");
+            }
+
+            prevButton.addEventListener("click", () => {
+                const oldIndex = currentIndex;
+                currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                animateSlide(oldIndex, currentIndex, 'prev');
+            });
+
+            nextButton.addEventListener("click", () => {
+                const oldIndex = currentIndex;
+                currentIndex = (currentIndex + 1) % totalSlides;
+                animateSlide(oldIndex, currentIndex, 'next');
+            });
+
+            gsap.set(featuresSlides.slice(1), { opacity: 0, visibility: 'hidden' });
+            
+            ScrollTrigger.create({
+                trigger: ".gsap-features-carousel-section",
+                start: "top 75%",
+                onEnter: () => {
+                    gsap.from(featuresSlides[0].querySelectorAll(".features-text, .features-image-wrapper"), {
+                        opacity: 0,
+                        y: 50,
+                        scale: 0.9,
+                        duration: 1,
+                        ease: "power3.out",
+                        stagger: 0.2
+                    });
+                },
+                once: true
+            });
+
+        });
+    </script>
+
+</body>
+</html>

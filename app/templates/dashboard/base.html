@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard da Loja - Ecomoz</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-icons@latest/dist/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body class="flex bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden">
+
+    <div id="toast-notification"></div>
+
+    {% include 'dashboard/components/sidebar.html' %}
+
+    <aside id="sidebar" class="fixed inset-y-0 left-20 z-30 w-64 p-4 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 overflow-y-auto bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
+        <nav class="space-y-1" id="l2-nav-content">
+            <div class="p-4 text-sm text-gray-500 text-center mt-10">
+                Selecione uma opção no menu lateral.
+            </div>
+        </nav>
+    </aside>
+
+    <div class="flex-1 md:ml-[336px] transition-all duration-300 ease-in-out h-screen overflow-y-auto flex flex-col">
+        
+        {% include 'dashboard/components/header.html' %}
+
+        <main id="content-area" class="flex-1 p-4 md:p-8 pb-20">
+            <div class="flex items-center justify-center h-full">
+                <i data-lucide="loader-2" class="w-12 h-12 animate-spin text-blue-600"></i>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/core.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/dashboard/pages/metrics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/orders.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/products.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/products_complex.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/services.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/staff.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/crm.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/marketing.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/calendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/orcamentos.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/avaliacoes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/reports.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/wallet.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/domains.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/verification.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/promotion.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/pages/blog.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/dashboard/systems/search.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/systems/notifications.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/systems/backup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard/systems/export.js') }}"></script>
+
+    {% include 'dashboard/modals/shop_create.html' %}
+    {% include 'dashboard/modals/upgrade.html' %}
+    {% include 'dashboard/modals/product_complex.html' %}
+    {% include 'dashboard/modals/product_simple.html' %}
+    {% include 'dashboard/modals/service.html' %}
+    {% include 'dashboard/modals/staff.html' %}
+    
+    {% include 'dashboard/modals/client.html' %}
+    {% include 'dashboard/modals/coupon.html' %}
+    {% include 'dashboard/modals/campaign.html' %}
+    {% include 'dashboard/modals/quote.html' %}
+    {% include 'dashboard/modals/review.html' %}
+    {% include 'dashboard/modals/blog.html' %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

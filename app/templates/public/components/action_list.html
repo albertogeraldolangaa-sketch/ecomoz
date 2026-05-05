@@ -1,0 +1,60 @@
+<ul class="action-list">
+    {% if shop.show_schedule %}
+    <li class="action-item" data-modal-target="schedule-modal">
+        <i class="fas fa-calendar-alt action-icon"></i>
+        <span>
+            {% if business_model == 'delivery' %}
+                Fazer Encomenda
+            {% else %}
+                Agendar Serviço
+            {% endif %}
+        </span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    {% endif %}
+
+    {% if shop.show_products %}
+    <li class="action-item" data-modal-target="products-modal">
+        <i class="fas fa-shopping-bag action-icon"></i>
+        <span>
+            {% if business_model == 'delivery' %}
+                Menu / Catálogo
+            {% else %}
+                Produtos
+            {% endif %}
+        </span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    {% endif %}
+
+    {% if shop.show_bookings %}
+    <li class="action-item" data-modal-target="bookings-modal">
+        <i class="fas fa-ticket action-icon"></i>
+        <span>Meus Tickets</span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    {% endif %}
+    
+    <li class="action-item" data-modal-target="reviews-modal">
+        <i class="fas fa-star action-icon"></i>
+        <span>Avaliações</span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    <li class="action-item" data-modal-target="blog-modal">
+        <i class="fas fa-feather-alt action-icon"></i>
+        <span>Blog</span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    <li class="action-item" data-modal-target="quote-modal">
+        <i class="fas fa-file-invoice-dollar action-icon"></i>
+        <span>Pedido de Orçamento</span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    {% if shop.show_info %}
+    <li class="action-item" data-modal-target="info-modal">
+        <i class="fas fa-map-marker-alt action-icon"></i>
+        <span>Informações</span>
+        <i class="fas fa-chevron-right chevron-icon"></i>
+    </li>
+    {% endif %}
+</ul>

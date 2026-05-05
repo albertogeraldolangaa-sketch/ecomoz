@@ -1,0 +1,224 @@
+<div class="modal-overlay" id="info-modal">
+    <div class="modal-header">
+        <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+        <h2 class="modal-title">Informações da Loja</h2>
+    </div>
+    <div class="modal-body">
+        <div class="info-block">
+            {% if shop.telefone %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-phone"></i></span>
+                <div>
+                    <div class="info-label">Telefone</div>
+                    <div class="info-value">
+                        <a href="tel:{{ shop.telefone }}" class="info-link">
+                            {{ shop.telefone }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if shop.social_whatsapp %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-brands fa-whatsapp"></i></span>
+                <div>
+                    <div class="info-label">WhatsApp</div>
+                    <div class="info-value">
+                        <a href="https://wa.me/{{ shop.social_whatsapp }}" 
+                           target="_blank" 
+                           rel="noopener"
+                           class="info-link">
+                            <i class="fa-brands fa-whatsapp" style="margin-right: 8px;"></i>
+                            Enviar mensagem
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if shop.morada %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-location-dot"></i></span>
+                <div>
+                    <div class="info-label">Morada</div>
+                    <div class="info-value">
+                        {{ shop.morada }}
+                        {% if shop.coordenadas %}
+                        <div style="margin-top: 8px;">
+                            <button class="btn-map" data-coords="{{ shop.coordenadas }}">
+                                <i class="fa-solid fa-map-location-dot" style="margin-right: 5px;"></i>
+                                Ver no Mapa
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if shop.horario_funcionamento %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-clock"></i></span>
+                <div>
+                    <div class="info-label">Horário de Funcionamento</div>
+                    <div class="info-value">
+                        {{ shop.horario_funcionamento }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if shop.social_instagram %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-brands fa-instagram"></i></span>
+                <div>
+                    <div class="info-label">Instagram</div>
+                    <div class="info-value">
+                        <a href="https://instagram.com/{{ shop.social_instagram }}" 
+                           target="_blank" 
+                           rel="noopener"
+                           class="info-link">
+                            <i class="fa-brands fa-instagram" style="margin-right: 8px;"></i>
+                            @{{ shop.social_instagram }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if shop.social_facebook %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-brands fa-facebook"></i></span>
+                <div>
+                    <div class="info-label">Facebook</div>
+                    <div class="info-value">
+                        <a href="https://facebook.com/{{ shop.social_facebook }}" 
+                           target="_blank" 
+                           rel="noopener"
+                           class="info-link">
+                            <i class="fa-brands fa-facebook" style="margin-right: 8px;"></i>
+                            {{ shop.social_facebook }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if shop.email %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-envelope"></i></span>
+                <div>
+                    <div class="info-label">Email</div>
+                    <div class="info-value">
+                        <a href="mailto:{{ shop.email }}" class="info-link">
+                            {{ shop.email }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if shop.website %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-globe"></i></span>
+                <div>
+                    <div class="info-label">Website</div>
+                    <div class="info-value">
+                        <a href="{{ shop.website }}" 
+                           target="_blank" 
+                           rel="noopener"
+                           class="info-link">
+                            <i class="fa-solid fa-external-link-alt" style="margin-right: 8px;"></i>
+                            Visitar Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Informações Adicionais da Loja -->
+            {% if shop.categorias %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-tags"></i></span>
+                <div>
+                    <div class="info-label">Categorias</div>
+                    <div class="info-value">
+                        <div class="categories-tags">
+                            {% for categoria in shop.categorias.split(',') %}
+                            <span class="category-tag">{{ categoria.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if shop.descricao_longa %}
+            <div class="info-item info-item-full">
+                <span class="info-icon"><i class="fa-solid fa-info-circle"></i></span>
+                <div>
+                    <div class="info-label">Sobre Nós</div>
+                    <div class="info-value">
+                        <p style="margin: 0; line-height: 1.5;">{{ shop.descricao_longa }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Métodos de Pagamento -->
+            {% if shop.metodos_pagamento %}
+            <div class="info-item">
+                <span class="info-icon"><i class="fa-solid fa-credit-card"></i></span>
+                <div>
+                    <div class="info-label">Métodos de Pagamento</div>
+                    <div class="info-value">
+                        <div class="payment-methods">
+                            {% for metodo in shop.metodos_pagamento.split(',') %}
+                            <span class="payment-method">{{ metodo.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Mapa Embed (se coordenadas disponíveis) -->
+        {% if shop.coordenadas %}
+        <div class="map-container" style="margin-top: 20px; display: none;" id="map-container">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Localização</h3>
+            <div id="map" style="height: 200px; border-radius: 12px; overflow: hidden; background: #f0f0f0;">
+                <!-- Mapa será carregado via JavaScript -->
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ações Rápidas -->
+        <div class="quick-actions" style="margin-top: 25px;">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Ações Rápidas</h3>
+            <div class="action-buttons">
+                {% if shop.telefone %}
+                <button class="action-btn primary" onclick="infoManager.callShop('{{ shop.telefone }}')">
+                    <i class="fa-solid fa-phone" style="margin-right: 8px;"></i>
+                    Ligar
+                </button>
+                {% endif %}
+                
+                {% if shop.social_whatsapp %}
+                <button class="action-btn success" onclick="infoManager.openWhatsApp('{{ shop.social_whatsapp }}')">
+                    <i class="fa-brands fa-whatsapp" style="margin-right: 8px;"></i>
+                    WhatsApp
+                </button>
+                {% endif %}
+                
+                {% if shop.morada and shop.coordenadas %}
+                <button class="action-btn secondary" onclick="infoManager.openMaps('{{ shop.coordenadas }}', '{{ shop.morada }}')">
+                    <i class="fa-solid fa-directions" style="margin-right: 8px;"></i>
+                    Direções
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

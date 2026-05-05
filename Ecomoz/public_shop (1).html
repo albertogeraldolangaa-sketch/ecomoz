@@ -1,0 +1,4324 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ shop.nome | default('A sua Loja') }}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        /* * INJEÇÃO DE TEMA DINÂMICO
+         * O Flask substitui '{{ shop.theme_color }}' pela cor 
+         * definida no dashboard.
+         */
+        :root {
+            /* Nova paleta de cores azul e branco */
+            --theme-primary: #1E3A8A; /* Azul profundo */
+            --theme-secondary: #3B82F6; /* Azul claro */
+            --theme-background: #F9FAFB; /* Branco gelo */
+            --theme-card-bg: rgba(255, 255, 255, 0.2); /* Fundo glassmorphism */
+            --theme-primary-text: #ffffff; 
+            --theme-dark-text: #0F172A; /* Azul quase preto */
+            --theme-light-text: #64748B; /* Cinza azulado */
+            --theme-border: rgba(255, 255, 255, 0.4); /* Borda glass */
+            --theme-light-bg: #f8f9fa;
+            
+            /* Cores para o modo delivery premium */
+            --delivery-primary: #1E3A8A;
+            --delivery-secondary: #3B82F6; 
+            --delivery-neutral: #F9FAFB;
+            --delivery-highlight: #3B82F6;
+            --delivery-dark-text: #0F172A;
+            --delivery-light-text: #64748B;
+            --delivery-border: rgba(255, 255, 255, 0.4); 
+            --delivery-glass-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Reset e Base --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--theme-background); /* Fundo branco gelo */
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        button, input, textarea, select {
+            font-family: inherit;
+        }
+        body.modal-active {
+            overflow: hidden;
+        }
+
+        /* --- Estilo do Mini-site (Base) --- */
+        .minisite-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--theme-card-bg); /* Fundo glassmorphism */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--theme-dark-text);
+            padding: 30px 24px;
+            box-sizing: border-box;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            border: 1px solid var(--theme-border); /* Borda glass */
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .minisite-header {
+            display: flex;
+            /* 1. DISTRIBUIÇÃO HORIZONTAL: Empurra os elementos (Logo, Menu, Ícones) para as extremidades */
+            justify-content: space-between;
+            /* 2. ALINHAMENTO VERTICAL: Mantém tudo centralizado verticalmente */
+            align-items: center;
+            /* 3. FLUXO: Garante que os elementos permaneçam lado a lado e não quebrem a linha */
+            flex-wrap: nowrap;
+            /* Outros estilos como padding, height, etc. */
+            width: 100%;
+        }
+        
+        /* Verifique se a regra para os ÍCONES de ação (Menu, Login) está correta */
+        .header-actions { /* Exemplo: se houver um container para os ícones */
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Adiciona espaçamento entre os ícones */
+            flex-shrink: 0; /* Impede que os ícones encolham */
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 16px;
+            border: 4px solid rgba(255, 255, 255, 0.6);
+            background: #eee;
+        }
+
+        .minisite-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--theme-dark-text);
+            margin: 0 0 4px 0;
+        }
+
+        .minisite-header p {
+            font-size: 1rem;
+            color: var(--theme-light-text);
+            margin: 0;
+        }
+
+        /* Lista de Ações */
+        .action-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .action-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.15);
+        }
+
+        .action-icon {
+            color: var(--theme-primary);
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .action-item span {
+            flex-grow: 1;
+            text-align: left;
+            margin-left: 16px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .chevron-icon {
+            color: var(--theme-light-text);
+            font-size: 0.9rem;
+        }
+
+        /* --- Estilos Gerais dos Modais (Tela Cheia) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--theme-background);
+            z-index: 1000;
+            overflow-y: auto;
+            
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out, visibility 0s 0.3s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(0);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--theme-border);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--theme-dark-text);
+            cursor: pointer;
+            padding: 8px;
+            margin-left: -8px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            margin-left: 16px;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        /* --- ESTILOS ADAPTADOS DE 'public_shop.html' --- */
+        
+        /* Componentes Reutilizáveis */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--theme-dark-text);
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .step-back-button {
+            background: none;
+            border: 2px solid var(--theme-border);
+            color: var(--theme-light-text);
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.2s;
+        }
+        .step-back-button:hover {
+            background-color: #fff;
+            color: var(--theme-dark-text);
+        }
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        /* Item de Lista (Para Serviços) */
+        .list-item {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+        .list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.1);
+            border-color: var(--theme-secondary);
+        }
+        .list-item.selected {
+            border-color: var(--theme-primary);
+            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.15);
+            transform: scale(1.02);
+        }
+        .list-item-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .list-item-icon {
+            font-size: 1.1rem;
+            color: var(--theme-light-text);
+            width: 24px;
+            text-align: center;
+        }
+        .list-item-label {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .list-item-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.9rem;
+            color: var(--theme-dark-text);
+        }
+        .list-item-price {
+            font-weight: 600;
+        }
+        .list-item-sub {
+            font-size: 0.8rem;
+            color: var(--theme-light-text);
+        }
+        
+        /* Estilo para Seleção de Staff */
+        .staff-item {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+        .staff-item:hover {
+            border-color: var(--theme-secondary);
+        }
+        .staff-item.selected {
+             border-color: var(--theme-primary);
+        }
+        .staff-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #eee;
+        }
+        .staff-details {
+            text-align: left;
+        }
+        .staff-name {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .staff-title {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+        }
+        /* */
+
+        /*
+        ============================================================
+         INÍCIO: NOVOS ESTILOS DE LAYOUT (Lista vs. Grelha)
+        ============================================================
+        */
+
+        /* Estilo 1: Lista (para Restaurantes/Delivery) */
+        .menu-item {
+            display: flex;
+            align-items: center; 
+            text-align: left;
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+        }
+        .menu-item-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 16px;
+            background-color: #eee;
+            flex-shrink: 0;
+        }
+        .menu-item.clickable {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .menu-item.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+        }
+        .menu-item-details {
+            flex-grow: 1;
+        }
+        .menu-item-name {
+            font-weight: 500;
+            display: block;
+            font-size: 1rem;
+        }
+        .menu-item-price {
+            font-weight: 600;
+            color: var(--theme-dark-text);
+            font-size: 0.9rem;
+        }
+        .menu-item .chevron-icon {
+            margin-left: 16px;
+        }
+        
+        /* Estilo 2: Grelha (para Lojas de Roupa/Produtos) */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Duas colunas */
+            gap: 16px; 
+            margin-bottom: 24px;
+        }
+        .product-card {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            overflow: hidden; 
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: left; 
+        }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.1);
+        }
+        .product-card-images {
+            display: block;
+            width: 100%;
+            height: 180px; /* Mais altura para fotos de roupa */
+            object-fit: cover; 
+            background-color: #eee;
+        }
+        .product-card-info {
+            padding: 12px; 
+        }
+        .product-card-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            color: var(--theme-dark-text);
+        }
+        .product-card-price {
+            font-weight: 600;
+            color: var(--theme-dark-text);
+            font-size: 0.9rem;
+        }
+
+        /*
+        ============================================================
+         FIM: NOVOS ESTILOS DE LAYOUT
+        ============================================================
+        */
+
+        /* Botão de Ação Principal (CTA) */
+        .cta-container {
+            margin-top: 25px;
+            padding: 10px 0;
+        }
+        .cta-button {
+            display: block;
+            width: 100%;
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+        .cta-button:hover {
+            background-color: var(--theme-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+        .cta-button:disabled {
+            background-color: #ccc;
+            color: #777;
+            cursor: not-allowed;
+            filter: none;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Spinner de Carregamento */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top-color: var(--theme-primary);
+            border-radius: 50%;
+            display: block;
+            margin: 40px auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Estado Vazio */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 2px dashed var(--theme-border);
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            color: var(--theme-light-text);
+            margin-bottom: 15px;
+        }
+        .empty-state h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+            margin-top: 5px;
+        }
+        
+        /* --- Estilos do Fluxo de Agendamento --- */
+        .booking-step {
+            display: none;
+        }
+        .booking-step.active {
+            display: block;
+        }
+        
+        /* Calendário */
+        .calendar-container {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid var(--theme-border);
+            padding: 20px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-header button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--theme-light-text);
+            cursor: pointer;
+        }
+        .calendar-month-year {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .calendar-day, .calendar-day-header {
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 10px 0;
+        }
+        .calendar-day-header {
+            font-weight: 600;
+            color: var(--theme-light-text);
+        }
+        .calendar-day {
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .calendar-day:not(.other-month):not(.disabled):hover {
+            background-color: rgba(30, 58, 138, 0.1);
+        }
+        .calendar-day.other-month, .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .calendar-day.selected {
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            border-color: var(--theme-primary);
+            font-weight: 600;
+        }
+
+        /* Horários */
+        .time-slots-container {
+            margin-top: 25px;
+            display: none; /* Escondido até uma data ser selecionada */
+        }
+        .time-slots-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .time-slot {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .time-slot:hover {
+            border-color: var(--theme-primary);
+        }
+        .time-slot.selected {
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            border-color: var(--theme-primary);
+            font-weight: 600;
+        }
+        .time-slot.disabled {
+            background-color: #f9f9f9;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Formulário de Confirmação */
+        .booking-summary {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .booking-summary p {
+            font-size: 1rem;
+            color: var(--theme-dark-text);
+            line-height: 1.6;
+            border-bottom: 1px dashed var(--theme-border);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .booking-summary p:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .booking-summary p strong {
+            font-weight: 600;
+        }
+
+        /*
+        ============================================================
+         INÍCIO: NOVO ESTILO (Resumo de Preço - Depósito)
+        ============================================================
+        */
+        #price-summary-container p {
+            border-bottom: none;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        #price-summary-container p:first-child { /* Preço Total */
+            font-size: 1rem;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--theme-border);
+        }
+         #price-summary-container p:nth-child(2) { /* Valor a Pagar Agora */
+            font-size: 1.1rem;
+            color: var(--theme-primary);
+        }
+         #price-summary-container p:nth-child(3) { /* Valor Restante */
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+        }
+        /*
+        ============================================================
+         FIM: NOVO ESTILO
+        ============================================================
+        */
+
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--theme-dark-text);
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--theme-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Estilo para Cupão */
+        .coupon-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .coupon-form input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--theme-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .coupon-form button {
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            border: none;
+            padding: 0 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        /* */
+        
+        /* Opções de Pagamento (usando .list-item) */
+        .payment-options, .delivery-options {
+            margin-bottom: 25px;
+        }
+        .payment-options .list-item, .delivery-options .list-item {
+            padding: 12px 16px;
+        }
+        .payment-options label, .delivery-options label {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .payment-options input[type="radio"], .delivery-options input[type="radio"] {
+            opacity: 0; width: 0; height: 0;
+        }
+        .payment-options .radio-custom, .delivery-options .radio-custom {
+            width: 20px; height: 20px; border: 2px solid var(--theme-border);
+            border-radius: 50%; margin-right: 15px; display: flex;
+            align-items: center; justify-content: center; transition: border-color 0.2s;
+        }
+        .payment-options .radio-custom .dot, .delivery-options .radio-custom .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background-color: var(--theme-primary); transform: scale(0);
+            transition: transform 0.2s;
+        }
+        .payment-options input[type="radio"]:checked + label .radio-custom,
+        .delivery-options input[type="radio"]:checked + label .radio-custom {
+            border-color: var(--theme-primary);
+        }
+        .payment-options input[type="radio"]:checked + label .radio-custom .dot,
+        .delivery-options input[type="radio"]:checked + label .radio-custom .dot {
+            transform: scale(1);
+        }
+
+        /* Sucesso */
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .success-message .icon {
+            font-size: 4.5rem;
+            color: #28a745; /* Verde sucesso */
+            margin-bottom: 20px;
+        }
+        .success-message h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .success-message p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        /* [CORREÇÃO] Estilo para o número do ticket na pág. de sucesso */
+        .success-message .ticket-details {
+            font-size: 0.9rem; 
+            color: var(--theme-light-text);
+            margin-top: -15px;
+            margin-bottom: 30px;
+        }
+        .success-message .ticket-details strong {
+            color: var(--theme-dark-text);
+            font-weight: 600;
+        }
+
+        /* --- Estilos da Aba "Meus Tickets" --- */
+        .ticket-item {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid var(--theme-border);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .ticket-item-header {
+            padding: 15px;
+            border-bottom: 1px dashed var(--theme-border);
+        }
+        .ticket-item-header .ticket-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--theme-primary);
+        }
+        .ticket-item-header .ticket-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            float: right;
+            text-transform: uppercase;
+        }
+        /* [CORREÇÃO] Adicionado status 'Aguardando' (pagamento) */
+        .ticket-status-pending { background-color: #ffc107; color: #333; }
+        .ticket-status-Aguardando { background-color: var(--theme-secondary); color: #fff; } /* Azul */
+        .ticket-status-Confirmado { background-color: #28a745; color: #fff; }
+        .ticket-status-Cancelado { background-color: #dc3545; color: #fff; }
+        /* Status "Concluído" para permitir avaliação */
+        .ticket-status-Concluido { background-color: #6b7280; color: #fff; }
+        
+        .ticket-item-body {
+            padding: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .ticket-item-body p { margin-bottom: 5px; }
+        .ticket-item-body strong { font-weight: 600; }
+        
+        .ticket-item-footer {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid var(--theme-border);
+            text-align: right;
+        }
+        .btn-cancel-booking {
+            background: none;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel-booking:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+        /* Botão de Avaliação */
+        .btn-review-booking {
+            background: none;
+            border: 1px solid var(--theme-primary);
+            color: var(--theme-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+        .btn-review-booking:hover {
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+        }
+        /* */
+
+        
+        /* --- Estilos da Aba "Informações" --- */
+        .info-block {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid var(--theme-border);
+        }
+        .info-block .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            border-bottom: 1px solid var(--theme-border);
+        }
+        .info-block .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-block .info-icon {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--theme-primary);
+        }
+        .info-block .info-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .info-block .info-value {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+            word-break: break-word;
+        }
+        .info-block .info-value a {
+            color: var(--theme-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .info-block .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- Estilo Específico: Modal Detalhe do Item --- */
+        #item-detail-modal .modal-header {
+            position: absolute;
+            background: transparent;
+            border-bottom: none;
+        }
+        #item-detail-modal .modal-back-btn {
+            color: #fff;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            padding: 0;
+            text-align: center;
+            margin-left: 0; 
+        }
+        #item-detail-modal .modal-title {
+            display: none;
+        }
+        #item-detail-modal .modal-body {
+            padding: 0;
+            padding-bottom: 100px; /* Espaço para o botão CTA flutuante */
+        }
+        #item-detail-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+            display: block;
+        }
+        .item-detail-content {
+            padding: 24px;
+            text-align: left;
+        }
+        #item-detail-name {
+            font-family: 'Merriweather', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        #item-detail-description {
+            padding: 10px 0 20px 0;
+            margin: 0;
+            font-size: 1rem;
+            color: var(--theme-light-text);
+            line-height: 1.5;
+        }
+        .item-detail-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--theme-dark-text);
+        }
+        
+        /* Botão CTA flutuante no modal de detalhe */
+        #item-detail-modal .cta-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 16px 24px;
+            border-top: 1px solid var(--theme-border);
+            margin: 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /*
+        ============================================================
+         INÍCIO: NOVOS ESTILOS (Delivery/Carrinho)
+        ============================================================
+        */
+
+        /* Seletor de Quantidade (Modal 5) */
+        .item-quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .item-quantity-selector .qty-btn {
+            background-color: var(--theme-border);
+            color: var(--theme-dark-text);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .item-quantity-selector input {
+            width: 60px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            background: none;
+            margin: 0 10px;
+            /* Esconde as setas do input number */
+            -moz-appearance: textfield;
+        }
+        .item-quantity-selector input::-webkit-outer-spin-button,
+        .item-quantity-selector input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Botão Flutuante do Carrinho */
+        .floating-cart-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001; /* Acima dos modais, exceto o modal ativo */
+            
+            display: flex;
+            align-items: center;
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .floating-cart-btn:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+        }
+        .cart-count-badge {
+            background-color: var(--theme-primary-text);
+            color: var(--theme-primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        #cart-total-price {
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* Item do Carrinho (reutiliza .list-item) */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--theme-border);
+        }
+        .cart-item-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .cart-item-details {
+            flex-grow: 1;
+        }
+        .cart-item-name {
+            font-weight: 600;
+        }
+        .cart-item-price {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+        }
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: var(--theme-light-text);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .cart-item-remove:hover {
+            color: #dc3545;
+        }
+        
+        /* Botão Flutuante do Chat */
+        .floating-chat-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1001;
+            background-color: var(--theme-primary);
+            color: var(--theme-primary-text);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            transition: all 0.3s ease;
+        }
+        .floating-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+        }
+        
+        /* Estilos para Modal de Avaliações */
+        .review-item {
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .review-name {
+            font-weight: 600;
+        }
+        .review-stars {
+            color: #f59e0b; /* Amarelo */
+        }
+        .review-text {
+            font-size: 0.95rem;
+            color: var(--theme-light-text);
+        }
+
+        /* Estilos para Modal de Blog */
+         .blog-post-item {
+            display: flex;
+            text-align: left;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--theme-border);
+            cursor: pointer;
+         }
+         .blog-post-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 16px;
+            background-color: #eee;
+            flex-shrink: 0;
+         }
+         .blog-post-details {
+            flex-grow: 1;
+         }
+         .blog-post-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+         }
+         .blog-post-excerpt {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+         }
+        /* */
+
+        /* ================================================== */
+        /* === ESTILOS PARA O MODO DELIVERY PREMIUM === */
+        /* ================================================== */
+        .delivery-mode {
+            background-color: var(--theme-background);
+            color: var(--delivery-dark-text);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .delivery-mode .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Animações de Elementos do Site */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0% { 
+                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+            }
+            50% { 
+                box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+            }
+            100% { 
+                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); 
+            }
+        }
+
+        .delivery-mode main.container {
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            z-index: 1; 
+        }
+
+        /* Header Delivery */
+        .delivery-mode .main-header {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--delivery-border);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .delivery-mode .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delivery-mode .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .delivery-mode .logo-icon {
+            background-color: var(--delivery-primary);
+            color: var(--theme-primary-text);
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .delivery-mode .logo h1 {
+            font-size: 1.5rem;
+            color: var(--delivery-dark-text);
+        }
+
+        .delivery-mode .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .delivery-mode .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--delivery-glass-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--delivery-border);
+            transition: all 0.3s ease;
+        }
+
+        .delivery-mode .search-bar:focus-within {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .delivery-mode .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            margin-left: 8px;
+            font-size: 0.9rem;
+            color: var(--delivery-dark-text);
+        }
+
+        .delivery-mode .search-bar i {
+            color: var(--delivery-light-text);
+        }
+
+        .delivery-mode .nav-link {
+            text-decoration: none;
+            color: var(--delivery-light-text);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .delivery-mode .nav-link:hover {
+            color: var(--delivery-primary);
+        }
+
+        .delivery-mode .user-profile i {
+            font-size: 2rem;
+            color: var(--delivery-primary);
+            cursor: pointer;
+        }
+
+        /* Banner (Painel de Vidro) */
+        .delivery-mode .banner {
+            background: var(--delivery-glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid var(--delivery-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .delivery-mode .banner-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .delivery-mode .banner-icon {
+            background-color: var(--delivery-primary);
+            color: var(--theme-primary-text);
+            font-weight: bold;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+        }
+
+        .delivery-mode .banner-content p {
+            font-size: 1.1rem;
+            color: var(--delivery-dark-text);
+            font-weight: 500;
+        }
+
+        /* Actions (Botão Pulsante) */
+        .delivery-mode .actions {
+            margin-bottom: 30px;
+        }
+
+        .delivery-mode .cta-button {
+            background-color: var(--delivery-primary);
+            color: var(--theme-primary-text);
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulseGlow 3s ease-in-out infinite; 
+        }
+
+        .delivery-mode .cta-button:hover {
+            background-color: var(--delivery-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+            animation-play-state: paused; 
+        }
+
+        /* Featured Products */
+        .delivery-mode .featured-products h2 {
+            font-size: 1.2rem;
+            color: var(--delivery-light-text);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .delivery-mode .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        /* Product Card (Painel de Vidro) */
+        .delivery-mode .product-card {
+            background: var(--delivery-glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--delivery-border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease; 
+        }
+
+        .delivery-mode .product-card:hover {
+            transform: translateY(-8px); 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 
+                        0 0 25px rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .delivery-mode .product-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--delivery-border);
+        }
+
+        .delivery-mode .product-icon {
+            font-size: 2.5rem;
+            color: var(--delivery-primary);
+        }
+
+        .delivery-mode .product-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--delivery-dark-text);
+        }
+
+        .delivery-mode .product-card .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--delivery-primary);
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Menu Hamburger para Mobile */
+        .hamburger-menu {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--delivery-light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: var(--delivery-light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mobile-nav .nav-link {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--delivery-border);
+        }
+
+        /* Overlay para menu mobile */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            display: none;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        /* ================================== */
+        /* === RESPONSIVIDADE === */
+        /* ================================== */
+
+        @media (max-width: 992px) {
+            .delivery-mode .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .delivery-mode .main-header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .delivery-mode .main-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .delivery-mode .search-bar {
+                flex-grow: 1;
+            }
+            .delivery-mode .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .delivery-mode .featured-products h2 {
+                text-align: center;
+            }
+            .delivery-mode .actions {
+                display: flex;
+                justify-content: center;
+            }
+            .delivery-mode .cta-button {
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .hamburger-menu {
+                display: block;
+            }
+            
+            .delivery-mode .main-nav .nav-link:not(.search-bar) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .delivery-mode .logo h1 {
+                display: none;
+            }
+            .delivery-mode .logo-icon {
+                margin-right: 0;
+            }
+            .delivery-mode .logo {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            .delivery-mode .main-header .container {
+                gap: 10px;
+            }
+            .delivery-mode .main-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .delivery-mode .search-bar {
+                width: 100%;
+                order: 1; 
+            }
+            .delivery-mode .nav-link {
+                order: 2;
+            }
+            .delivery-mode .user-profile {
+                order: 3;
+            }
+        }
+
+        /* ================================================== */
+        /* === NOVAS ANIMAÇÕES ABSTRATAS (SEM INTERAÇÃO) === */
+        /* ================================================== */
+
+        /* 1. Animação de Bolhas Flutuantes (Bubbles) */
+        @keyframes floatBubble {
+            0% { transform: translateY(0) scale(1); opacity: 0.6; }
+            100% { transform: translateY(-150px) scale(1.5); opacity: 0; } /* Aumentei o range */
+        }
+
+        .bubble-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1; /* Fica atrás de todo o conteúdo */
+            pointer-events: none; /* Não interfere com cliques */
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(59, 130, 246, 0.15); /* Azul subtil */
+            border-radius: 50%;
+            animation: floatBubble ease-in-out infinite;
+            opacity: 0; /* Começa invisível */
+        }
+
+        /* Tamanhos e durações variadas para as bolhas */
+        .bubble:nth-child(1) { width: 15px; height: 15px; left: 10%; animation-duration: 8s; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 25px; height: 25px; left: 30%; animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { width: 20px; height: 20px; left: 60%; animation-duration: 10s; animation-delay: 4s; }
+        .bubble:nth-child(4) { width: 18px; height: 18px; left: 80%; animation-duration: 9s; animation-delay: 6s; }
+        .bubble:nth-child(5) { width: 30px; height: 30px; left: 20%; animation-duration: 15s; animation-delay: 1s; }
+        .bubble:nth-child(6) { width: 22px; height: 22px; left: 70%; animation-duration: 11s; animation-delay: 3s; }
+        .bubble:nth-child(7) { width: 12px; height: 12px; left: 45%; animation-duration: 7s; animation-delay: 5s; }
+        .bubble:nth-child(8) { width: 28px; height: 28px; left: 5%; animation-duration: 13s; animation-delay: 7s; }
+
+        /* 2. Brilho Sutil e Pulsante no Fundo (Glow Pulse) */
+        @keyframes glowBackground {
+          0% { box-shadow: 0 0 0px rgba(59, 130, 246, 0.05); } /* Cor de destaque para o brilho */
+          50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.15); } /* Brilho mais visível */
+          100% { box-shadow: 0 0 0px rgba(59, 130, 246, 0.05); }
+        }
+
+        .delivery-mode::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Usa a animação de brilho no pseudo-elemento */
+            animation: glowBackground 8s ease-in-out infinite; 
+            z-index: -2; /* Mais para trás que as bolhas */
+            pointer-events: none;
+        }
+
+        /* 3. Partículas de Estrelas Cintilantes (Stars) */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -3; /* O mais ao fundo */
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(59, 130, 246, 0.8);
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+        }
+
+        /* Posicionamento e durações variadas para as estrelas */
+        .star:nth-child(1) { top: 5%; left: 15%; animation-duration: 3s; animation-delay: 0s; }
+        .star:nth-child(2) { top: 12%; left: 80%; animation-duration: 4s; animation-delay: 1s; }
+        .star:nth-child(3) { top: 25%; left: 40%; animation-duration: 3.5s; animation-delay: 0.5s; }
+        .star:nth-child(4) { top: 38%; left: 90%; animation-duration: 4.2s; animation-delay: 2s; }
+        .star:nth-child(5) { top: 50%; left: 5%; animation-duration: 3.8s; animation-delay: 1.5s; }
+        .star:nth-child(6) { top: 65%; left: 70%; animation-duration: 4.5s; animation-delay: 0.8s; }
+        .star:nth-child(7) { top: 80%; left: 25%; animation-duration: 3.2s; animation-delay: 2.5s; }
+        .star:nth-child(8) { top: 92%; left: 55%; animation-duration: 4.8s; animation-delay: 1.2s; }
+        .star:nth-child(9) { top: 20%; left: 60%; animation-duration: 3.7s; animation-delay: 0.3s; }
+        .star:nth-child(10) { top: 75%; left: 10%; animation-duration: 4.1s; animation-delay: 1.8s; }
+
+        /* ================================================== */
+        /* === ESTILOS PARA LOCALIZAÇÃO E TAXAS === */
+        /* ================================================== */
+
+        .location-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--delivery-glass-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid var(--delivery-border);
+        }
+
+        .location-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--delivery-dark-text);
+        }
+
+        .location-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .location-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .location-option:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .location-option.selected {
+            background-color: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--delivery-primary);
+        }
+
+        .location-option input[type="radio"] {
+            display: none;
+        }
+
+        .location-details {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .location-details.active {
+            display: block;
+        }
+
+        .delivery-fee {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .delivery-fee span {
+            font-weight: bold;
+            color: var(--delivery-primary);
+        }
+
+        /* ================================================== */
+        /* === ESTILOS PARA PRODUTOS COMPLEXOS === */
+        /* ================================================== */
+
+        .variant-selector-group {
+            margin-bottom: 20px;
+        }
+
+        .variant-selector-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--theme-dark-text);
+        }
+
+        .variant-selector-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--theme-border);
+            border-radius: 8px;
+            background: var(--theme-card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            font-size: 1rem;
+        }
+
+        .variant-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+        }
+
+        .variant-stock {
+            font-weight: 600;
+            color: var(--theme-primary);
+        }
+
+        /* ================================================== */
+        /* === ESTILOS PARA AVALIAÇÕES E CLASSIFICAÇÕES === */
+        /* ================================================== */
+
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+
+        .rating-stars .star {
+            color: #f59e0b;
+            font-size: 1rem;
+        }
+
+        .rating-stars .star.empty {
+            color: #ddd;
+        }
+
+        .rating-value {
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .review-count {
+            font-size: 0.9rem;
+            color: var(--theme-light-text);
+        }
+
+        /* ================================================== */
+        /* === ESTILOS PARA O FOOTER === */
+        /* ================================================== */
+
+        .footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            background-color: var(--delivery-glass-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-top: 1px solid var(--delivery-border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--delivery-dark-text);
+        }
+
+        .footer-section p, .footer-section a {
+            color: var(--delivery-light-text);
+            line-height: 1.6;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--delivery-primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--delivery-primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--delivery-border);
+            text-align: center;
+            color: var(--delivery-light-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body data-slug="{{ shop.slug | default('loja-teste') }}" 
+      data-model="{{ business_model | default('agendamento') }}"
+      data-layout="{{ product_layout_style | default('lista') }}"
+      class="{{ 'delivery-mode' if business_model == 'delivery' else 'agendamento-mode' }}">
+
+    <!-- Estrutura para Modo Agendamento -->
+    {% if business_model == 'agendamento' %}
+    <div class="minisite-container">
+        <header class="minisite-header">
+            <img src="{{ shop.profile_image_url | default('https://placehold.co/100x100/e0e0e0/757575?text=' ~ (shop.nome | first | upper)) }}" alt="Logo {{ shop.nome }}" class="logo">
+            <h1>{{ shop.nome | default('Nome da Loja') }}</h1>
+            <p>{{ shop.descricao | default('A sua descrição aqui.') }}</p>
+        </header>
+
+        <main>
+            <ul class="action-list">
+                
+                {% if shop.show_schedule %}
+                <li class="action-item" data-modal-target="schedule-modal">
+                    <i class="fas fa-calendar-alt action-icon"></i>
+                    <span>Agendar Serviço</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                {% endif %}
+
+                {% if shop.show_products %}
+                <li class="action-item" data-modal-target="products-modal">
+                    <i class="fas fa-shopping-bag action-icon"></i>
+                    <span>Produtos</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                {% endif %}
+
+                {% if shop.show_bookings %}
+                <li class="action-item" data-modal-target="bookings-modal">
+                    <i class="fas fa-ticket action-icon"></i>
+                    <span>Meus Tickets</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                {% endif %}
+                
+                <li class="action-item" data-modal-target="reviews-modal">
+                    <i class="fas fa-star action-icon"></i>
+                    <span>Avaliações</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                <li class="action-item" data-modal-target="blog-modal">
+                    <i class="fas fa-feather-alt action-icon"></i>
+                    <span>Blog</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                <li class="action-item" data-modal-target="quote-modal">
+                    <i class="fas fa-file-invoice-dollar action-icon"></i>
+                    <span>Pedido de Orçamento</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                {% if shop.show_info %}
+                <li class="action-item" data-modal-target="info-modal">
+                    <i class="fas fa-map-marker-alt action-icon"></i>
+                    <span>Informações</span>
+                    <i class="fas fa-chevron-right chevron-icon"></i>
+                </li>
+                {% endif %}
+                
+            </ul>
+        </main>
+
+        {% if shop.show_schedule %}
+        <footer>
+            <button class="cta-button" data-modal-target="schedule-modal">
+                Fazer Marcação
+            </button>
+        </footer>
+        {% endif %}
+    </div>
+    
+    <!-- Estrutura para Modo Delivery -->
+    {% else %}
+    <div class="bubble-container">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="star-container">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">E</span>
+                <h1>{{ shop.nome | default('Encomenda Express') }}</h1>
+            </div>
+            <nav class="main-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Pesquise aqui...">
+                </div>
+                <a href="#" class="nav-link" data-modal-target="products-modal">
+                    <i class="fas fa-concierge-bell"></i> Serviços
+                </a>
+                <a href="#" class="nav-link" data-modal-target="bookings-modal">
+                    <i class="fas fa-ticket"></i> Meus Pedidos
+                </a>
+                <a href="#" class="nav-link" data-modal-target="reviews-modal">
+                    <i class="fas fa-star"></i> Avaliações
+                </a>
+                <a href="#" class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </nav>
+            <button class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="banner">
+            <div class="banner-content">
+                <span class="banner-icon">E</span>
+                <p>{{ shop.descricao | default('Seja bem-vindo ao seu portal de negócios') }}</p>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="cta-button" data-modal-target="products-modal">FAZER ENCOMENDA</button>
+        </section>
+
+        <section class="featured-products">
+            <h2>DESTAQUE PROFISSIONAL</h2>
+            <div class="product-grid" id="featured-products-grid">
+                <!-- Produtos em destaque serão carregados via JavaScript -->
+                <div class="loader"></div>
+            </div>
+        </section>
+
+        <!-- Seção de Localização -->
+        <section class="location-section">
+            <h3 class="location-title">Como quer receber o seu pedido?</h3>
+            <div class="location-options">
+                <div class="location-option" data-location-type="delivery">
+                    <input type="radio" id="location-delivery" name="location-type" value="delivery" checked>
+                    <label for="location-delivery">
+                        <i class="fas fa-motorcycle"></i> Entrega em Casa
+                    </label>
+                </div>
+                <div class="location-option" data-location-type="takeaway">
+                    <input type="radio" id="location-takeaway" name="location-type" value="takeaway">
+                    <label for="location-takeaway">
+                        <i class="fas fa-store"></i> Recolha na Loja
+                    </label>
+                </div>
+            </div>
+            
+            <div class="location-details" id="delivery-details">
+                <div class="form-group">
+                    <label for="delivery-address">Morada de Entrega</label>
+                    <textarea id="delivery-address" rows="3" placeholder="Av. 25 de Setembro, Bairro, Prédio..."></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="cta-button" id="use-current-location">
+                        <i class="fas fa-location-arrow"></i> Usar Minha Localização Atual
+                    </button>
+                </div>
+                <div class="delivery-fee">
+                    Taxa de entrega: <span id="delivery-fee-amount">50 MZN</span>
+                </div>
+            </div>
+            
+            <div class="location-details" id="takeaway-details">
+                <p>Pode recolher o seu pedido na nossa loja:</p>
+                <p><strong>{{ shop.morada | default('Morada da loja') }}</strong></p>
+                <p>Horário: Segunda a Sábado, 9h-18h</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer para Delivery -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Sobre Nós</h3>
+                    <p>{{ shop.descricao | default('A sua descrição aqui.') }}</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contactos</h3>
+                    <p><i class="fas fa-phone"></i> {{ shop.telefone | default('+258 XX XXX XXX') }}</p>
+                    <p><i class="fas fa-envelope"></i> {{ shop.email | default('email@exemplo.com') }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ shop.morada | default('Morada da loja') }}</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Redes Sociais</h3>
+                    <div class="social-links">
+                        {% if shop.social_whatsapp %}
+                        <a href="https://wa.me/{{ shop.social_whatsapp }}" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        {% endif %}
+                        {% if shop.social_facebook %}
+                        <a href="https://facebook.com/{{ shop.social_facebook }}" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        {% endif %}
+                        {% if shop.social_instagram %}
+                        <a href="https://instagram.com/{{ shop.social_instagram }}" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 {{ shop.nome | default('Encomenda Express') }}. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Menu Mobile -->
+    <div class="menu-overlay"></div>
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <h3>Menu</h3>
+            <button class="mobile-menu-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="mobile-nav">
+            <a href="#" class="nav-link" data-modal-target="products-modal">
+                <i class="fas fa-concierge-bell"></i> Serviços
+            </a>
+            <a href="#" class="nav-link" data-modal-target="bookings-modal">
+                <i class="fas fa-ticket"></i> Meus Pedidos
+            </a>
+            <a href="#" class="nav-link" data-modal-target="reviews-modal">
+                <i class="fas fa-star"></i> Avaliações
+            </a>
+            <a href="#" class="nav-link" data-modal-target="blog-modal">
+                <i class="fas fa-feather-alt"></i> Blog
+            </a>
+            <a href="#" class="nav-link" data-modal-target="quote-modal">
+                <i class="fas fa-file-invoice-dollar"></i> Pedido de Orçamento
+            </a>
+            <a href="#" class="nav-link" data-modal-target="info-modal">
+                <i class="fas fa-map-marker-alt"></i> Informações
+            </a>
+        </nav>
+    </div>
+    {% endif %}
+    
+    <!-- Botão Flutuante do Carrinho (apenas para Delivery) -->
+    {% if business_model == 'delivery' %}
+    <div id="cart-button" class="floating-cart-btn" style="display: none;">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-count" class="cart-count-badge">0</span>
+        <span id="cart-total-price" style="margin-left: 10px;">0.00 MZN</span>
+        <span style="margin-left: 15px; font-weight: 600;">Ver Carrinho <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem; margin-left: 5px;"></i></span>
+    </div>
+    {% endif %}
+    
+    <!-- Botão Flutuante do Chat -->
+    <div class="floating-chat-btn" id="chat-button">
+        <i class="fa-solid fa-comments"></i>
+    </div>
+    
+    <!-- MODAIS COMUNS A AMBOS OS MODELOS -->
+    
+    <!-- Modal de Agendamento/Checkout -->
+    <div class="modal-overlay" id="schedule-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">
+                {% if business_model == 'delivery' %}
+                    Finalizar Encomenda
+                {% else %}
+                    Fazer Agendamento
+                {% endif %}
+            </h2>
+        </div>
+        <div class="modal-body" id="app-container"> 
+            
+            <!-- Conteúdo específico para cada modelo será carregado via JavaScript -->
+            <div id="step-1-services" class="booking-step active">
+                <h2 class="section-title">
+                    {% if business_model == 'delivery' %}
+                        Rever Carrinho
+                    {% else %}
+                        Selecione um Serviço
+                    {% endif %}
+                </h2>
+                <ul id="service-list" class="service-list">
+                    <div id="loading-services" class="loader"></div>
+                </ul>
+            </div>
+            
+            <!-- Passos adicionais serão carregados dinamicamente -->
+            
+            <div class="cta-container" id="schedule-cta-container">
+                <button class="cta-button" id="cta-button" disabled>
+                    {% if business_model == 'delivery' %}
+                        Selecione produtos
+                    {% else %}
+                        Selecione um serviço
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Produtos -->
+    <div class="modal-overlay" id="products-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">
+                {% if business_model == 'delivery' %}
+                    Menu / Catálogo
+                {% else %}
+                    Produtos
+                {% endif %}
+            </h2>
+        </div>
+        <div class="modal-body">
+            <ul id="product-list" style="list-style: none;">
+                <div id="loading-products" class="loader"></div>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Modal de Tickets/Pedidos -->
+    <div class="modal-overlay" id="bookings-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">
+                {% if business_model == 'delivery' %}
+                    Meus Pedidos
+                {% else %}
+                    Meus Tickets
+                {% endif %}
+            </h2>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.9rem; color: var(--theme-light-text); margin-bottom: 20px; text-align: left;">
+                {% if business_model == 'delivery' %}
+                    Os seus pedidos pendentes ou confirmados nesta loja são guardados no seu navegador.
+                {% else %}
+                    Os seus tickets pendentes ou confirmados nesta loja são guardados no seu navegador.
+                {% endif %}
+            </p>
+            <div id="local-tickets-list"></div>
+        </div>
+    </div>
+    
+    <!-- Modal de Informações -->
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">Informações</h2>
+        </div>
+        <div class="modal-body">
+            <div class="info-block">
+                {% if shop.telefone %}
+                <div class="info-item">
+                    <span class="info-icon"><i class="fa-solid fa-phone"></i></span>
+                    <div>
+                        <div class="info-label">Telefone</div>
+                        <div class="info-value"><a href="tel:{{ shop.telefone }}">{{ shop.telefone }}</a></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if shop.social_whatsapp %}
+                <div class="info-item">
+                    <span class="info-icon"><i class="fa-brands fa-whatsapp"></i></span>
+                    <div>
+                        <div class="info-label">WhatsApp</div>
+                        <div class="info-value"><a href="https://wa.me/{{ shop.social_whatsapp }}" target="_blank">Enviar mensagem</a></div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if shop.morada %}
+                <div class="info-item">
+                    <span class="info-icon"><i class="fa-solid fa-location-dot"></i></span>
+                    <div>
+                        <div class="info-label">Morada</div>
+                        <div class="info-value">{{ shop.morada }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if shop.social_instagram %}
+                <div class="info-item">
+                    <span class="info-icon"><i class="fa-brands fa-instagram"></i></span>
+                    <div>
+                        <div class="info-label">Instagram</div>
+                        <div class="info-value"><a href="https://instagram.com/{{ shop.social_instagram }}" target="_blank">@{{ shop.social_instagram }}</a></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if shop.social_facebook %}
+                <div class="info-item">
+                    <span class="info-icon"><i class="fa-brands fa-facebook"></i></span>
+                    <div>
+                        <div class="info-label">Facebook</div>
+                        <div class="info-value"><a href="https://facebook.com/{{ shop.social_facebook }}" target="_blank">{{ shop.social_facebook }}</a></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhe do Produto -->
+    <div class="modal-overlay" id="item-detail-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title"></h2>
+        </div>
+        
+        <div class="modal-body">
+            <img src="https://placehold.co/400x250" alt="Foto do Produto" id="item-detail-image">
+            
+            <div class="item-detail-content">
+                <h2 id="item-detail-name">Nome do Produto</h2>
+                <div class="item-detail-price" id="item-detail-price">R$ 00,00</div>
+                <p id="item-detail-description">Descrição completa do produto...</p>
+                
+                <!-- Seletores de Variantes (para produtos complexos) -->
+                <div id="variant-selectors-container"></div>
+                
+                <div class="item-quantity-selector" id="item-quantity-selector" style="display: none;">
+                    <button class="qty-btn" data-action="decrease" aria-label="Diminuir quantidade">-</button>
+                    <input type="number" id="item-detail-qty" value="1" min="1" readonly>
+                    <button class="qty-btn" data-action="increase" aria-label="Aumentar quantidade">+</button>
+                </div>
+            </div>
+            
+            <div class="cta-container">
+                <button class="cta-button" id="modal-book-product-btn" style="display: none;">
+                    <i class="fa-solid fa-calendar-check" style="margin-right: 8px;"></i>
+                    Agendar este Item
+                </button>
+                <button class="cta-button" id="modal-add-to-cart-btn" style="display: none;">
+                    <i class="fa-solid fa-cart-plus" style="margin-right: 8px;"></i>
+                    Adicionar ao Carrinho
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Avaliações -->
+    <div class="modal-overlay" id="reviews-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">Avaliações</h2>
+        </div>
+        <div class="modal-body">
+            <div id="review-list">
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-name">Ana Silva</span>
+                        <span class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </span>
+                    </div>
+                    <p class="review-text">Adorei o atendimento e o produto é de excelente qualidade! Recomendo vivamente.</p>
+                </div>
+                
+                 <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-name">Carlos Matos</span>
+                        <span class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                        </span>
+                    </div>
+                    <p class="review-text">O produto é bom, mas a entrega demorou mais que o esperado.</p>
+                </div>
+                
+                <div id="loading-reviews" class="loader" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Blog -->
+    <div class="modal-overlay" id="blog-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">Blog</h2>
+        </div>
+        <div class="modal-body">
+            <div id="blog-post-list">
+                <div class="blog-post-item">
+                    <img src="https://placehold.co/80x80/e0e0e0/757575?text=Img" class="blog-post-thumbnail">
+                    <div class="blog-post-details">
+                        <h3 class="blog-post-title">Nova coleção de sapatos!</h3>
+                        <p class="blog-post-excerpt">Descubra as novas tendências para este verão que acabaram de chegar...</p>
+                    </div>
+                </div>
+                <div class="blog-post-item">
+                    <img src="https://placehold.co/80x80/e0e0e0/757575?text=Img" class="blog-post-thumbnail">
+                    <div class="blog-post-details">
+                        <h3 class="blog-post-title">Dicas para cuidar da sua barba</h3>
+                        <p class="blog-post-excerpt">Mantenha a sua barba impecável com estas 5 dicas simples...</p>
+                    </div>
+                </div>
+                
+                <div id="loading-blog-posts" class="loader" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Pedido de Orçamento -->
+    <div class="modal-overlay" id="quote-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">Pedido de Orçamento</h2>
+        </div>
+        <div class="modal-body">
+            <form id="quote-form" class="confirmation-form" onsubmit="return false;">
+                <p style="font-size: 0.9rem; color: var(--theme-light-text); margin-bottom: 20px; text-align: left;">
+                    Precisa de algo personalizado? Descreva o que precisa e entraremos em contacto.
+                </p>
+                <div class="form-group">
+                    <label for="quote-name">O seu Nome</label>
+                    <input type="text" id="quote-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="quote-phone">O seu Telemóvel</label>
+                    <input type="tel" id="quote-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="quote-details">Detalhes do Pedido</label>
+                    <textarea id="quote-details" rows="5" placeholder="Ex: Preciso de 100 t-shirts com o meu logótipo..." required></textarea>
+                </div>
+                
+                <div class="cta-container">
+                    <button class="cta-button" id="submit-quote-btn">Enviar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de Chat -->
+    <div class="modal-overlay" id="chat-modal">
+        <div class="modal-header">
+            <button class="modal-back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="modal-title">Chat com a Loja</h2>
+        </div>
+        <div class="modal-body">
+            <div id="chat-messages-container" style="height: 400px; overflow-y: auto; margin-bottom: 20px; padding: 10px; border: 1px solid var(--theme-border); border-radius: 8px;">
+                <!-- Mensagens de chat serão carregadas aqui -->
+            </div>
+            <div class="form-group">
+                <textarea id="chat-message-input" rows="3" placeholder="Escreva a sua mensagem..."></textarea>
+            </div>
+            <button class="cta-button" id="send-chat-message">Enviar Mensagem</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elementos do DOM (Geral) ---
+            const appContainer = document.getElementById('app-container'); // Body do modal de agendamento/checkout
+            const body = document.body;
+            const shopSlug = body.dataset.slug;
+            
+            // --- ATUALIZAÇÃO: Ler dados do body ---
+            const businessModel = body.dataset.model; // 'agendamento' ou 'delivery'
+            const productLayout = body.dataset.layout; // 'lista' ou 'grid'
+            
+            // --- Elementos do DOM (Modais) ---
+            const modalTriggers = document.querySelectorAll('[data-modal-target]');
+            const modalBackBtns = document.querySelectorAll('.modal-back-btn');
+
+            // --- Elementos do DOM (Aba Agendar / Checkout) ---
+            const scheduleModal = document.getElementById('schedule-modal');
+            const scheduleModalTitle = scheduleModal.querySelector('.modal-title');
+            const ctaButton = document.getElementById('cta-button');
+            const steps = document.querySelectorAll('.booking-step');
+            const serviceList = document.getElementById('service-list');
+            const serviceListTitle = document.querySelector('#step-1-services .section-title');
+            const loadingServices = document.getElementById('loading-services');
+            const itemPreselectedSummary = document.getElementById('item-preselected-summary');
+            
+            // Staff
+            const staffList = document.getElementById('staff-list');
+            const summaryStaffLine = document.getElementById('summary-staff-line');
+            const summaryStaff = document.getElementById('summary-staff');
+            
+            // Calendário (Agendamento)
+            const calendarContainer = document.getElementById('calendar-container');
+            const calendarMonthYear = document.getElementById('calendar-month-year');
+            const calendarGrid = document.querySelector('.calendar-grid');
+            const calendarPrev = document.getElementById('calendar-prev');
+            const calendarNext = document.getElementById('calendar-next');
+            const timeSlotsContainer = document.getElementById('time-slots-container');
+            const timeSlotsTitle = document.getElementById('time-slots-title');
+            const timeSlotsGrid = document.getElementById('time-slots-grid');
+            const step2Title = document.querySelector('#step-2-datetime .step-title');
+
+            // Delivery (Checkout)
+            const deliveryDetailsContainer = document.getElementById('delivery-details-container');
+            const deliveryOptions = document.querySelector('.delivery-options');
+            const deliveryAddressGroup = document.getElementById('delivery-address-group');
+            const clientAddressInput = document.getElementById('client-address');
+
+            // Confirmação
+            const summaryService = document.getElementById('summary-service');
+            const summaryDate = document.getElementById('summary-date');
+            const summaryTime = document.getElementById('summary-time');
+            const summaryItemLine = document.getElementById('summary-item-line');
+            const summaryDateLine = document.getElementById('summary-date-line');
+            const summaryTimeLine = document.getElementById('summary-time-line');
+            const summaryTypeLine = document.getElementById('summary-type-line');
+            const summaryAddressLine = document.getElementById('summary-address-line');
+            const summaryOrderType = document.getElementById('summary-order-type');
+            const summaryOrderAddress = document.getElementById('summary-order-address');
+            
+            // Resumo de Preço
+            const priceSummaryContainer = document.getElementById('price-summary-container');
+            const summaryTotalPrice = document.getElementById('summary-total-price');
+            const summaryAmountToPay = document.getElementById('summary-amount-to-pay');
+            const summaryRemaining = document.getElementById('summary-remaining');
+            
+            // Sucesso
+            const successTitle = document.getElementById('success-title');
+            const successMessage = document.getElementById('success-message');
+            const successService = document.getElementById('success-service');
+            const successDate = document.getElementById('success-date');
+            const successTime = document.getElementById('success-time');
+            const successTicket = document.getElementById('success-ticket');
+            const newBookingButton = document.getElementById('new-booking-button');
+            
+            // --- Elementos do DOM (Aba Produtos) ---
+            const productList = document.getElementById('product-list');
+            
+            // --- Elementos do DOM (Aba Meus Tickets) ---
+            const localTicketsList = document.getElementById('local-tickets-list');
+            
+            // --- Elementos do DOM (Modal de Detalhe do Produto) ---
+            const itemDetailModal = document.getElementById('item-detail-modal');
+            const modalBookProductBtn = document.getElementById('modal-book-product-btn');
+            const modalAddToCartBtn = document.getElementById('modal-add-to-cart-btn');
+            const qtySelector = document.getElementById('item-quantity-selector');
+            const qtyInput = document.getElementById('item-detail-qty');
+            
+            // --- Elementos do DOM (Carrinho de Delivery) ---
+            const cartButton = document.getElementById('cart-button');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotalPrice = document.getElementById('cart-total-price');
+
+            // --- Elementos do DOM (Delivery Premium) ---
+            const featuredProductsGrid = document.getElementById('featured-products-grid');
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileMenuClose = document.querySelector('.mobile-menu-close');
+            const menuOverlay = document.querySelector('.menu-overlay');
+            const locationOptions = document.querySelectorAll('.location-option');
+            const deliveryDetails = document.getElementById('delivery-details');
+            const takeawayDetails = document.getElementById('takeaway-details');
+            const useCurrentLocationBtn = document.getElementById('use-current-location');
+            const deliveryFeeAmount = document.getElementById('delivery-fee-amount');
+
+            // --- Estado da Aplicação ---
+            let currentStep = 'step-1-services';
+            let bookingState = {
+                service: null, // { id, nome, duracao_min, preco, payment_mode, deposit_value }
+                product: null, // { id, nome, preco, payment_mode, deposit_value } (Usado só p/ Agendar Produto)
+                staff: null, // { id, nome }
+                date: null,    // "YYYY-MM-DD"
+                time: null,    // "HH:MM"
+                amount_to_pay_now: 0.0 // Guarda o valor a ser cobrado
+            };
+            let shoppingCart = []; // { product: {...}, quantity: 1 } (Usado só p/ Delivery)
+            let currentCalendarDate = new Date(); // Para o calendário
+            let currentProductData = null; // Guarda dados do produto para o modal
+            
+            // Estado de carregamento
+            let servicesLoaded = false;
+            let productsLoaded = false;
+            let bookingsLoaded = false;
+            let reviewsLoaded = false;
+            let blogLoaded = false;
+            let staffLoaded = false;
+            
+            // Estado para produtos complexos
+            let complexProductDetails = {
+                options: [],
+                variants: [],
+                selectedVariant: null
+            };
+
+            // --- INICIALIZAÇÃO DA APLICAÇÃO ---
+            
+            /**
+             * BIFURCAÇÃO INICIAL
+             * Configura a UI para 'agendamento' ou 'delivery'
+             */
+            function initializeUI() {
+                if (businessModel === 'delivery') {
+                    // --- MODO DELIVERY ---
+                    // 1. Mudar textos da UI
+                    document.querySelectorAll('[data-modal-target="schedule-modal"] span').forEach(el => {
+                        if (el.textContent.includes('Agendar')) {
+                            el.textContent = 'Fazer Encomenda';
+                        }
+                    });
+                    
+                    scheduleModalTitle.textContent = 'Finalizar Encomenda';
+                    serviceListTitle.textContent = 'Rever Carrinho';
+                    
+                    // 2. Ocultar (Agendamento) / Mostrar (Delivery)
+                    if (calendarContainer) calendarContainer.style.display = 'none';
+                    if (timeSlotsContainer) timeSlotsContainer.style.display = 'none';
+                    
+                    // 3. Adicionar listeners do carrinho
+                    if (modalAddToCartBtn) {
+                        modalAddToCartBtn.addEventListener('click', handleAddToCart);
+                    }
+                    
+                    if (qtySelector) {
+                        qtySelector.addEventListener('click', handleQtyChange);
+                    }
+                    
+                    if (cartButton) {
+                        cartButton.addEventListener('click', () => {
+                            // O cart-button já tem data-modal-target="schedule-modal"
+                            // Apenas precisamos de garantir que renderiza o carrinho e abre o modal
+                            const modal = document.getElementById('schedule-modal');
+                            renderCartItems();
+                            showStep('step-1-services'); // Re-usa o passo 1 para a lista do carrinho
+                            modal.classList.add('active');
+                            body.classList.add('modal-active');
+                        });
+                    }
+                    
+                    // 4. Carregar produtos em destaque
+                    loadFeaturedProducts();
+                    
+                    // 5. Configurar localização
+                    setupLocationOptions();
+                    
+                } else {
+                    // --- MODO AGENDAMENTO ---
+                    // (Já é o default, mas garantimos)
+                    if (deliveryDetailsContainer) deliveryDetailsContainer.style.display = 'none';
+                    if (calendarContainer) calendarContainer.style.display = 'block';
+                    
+                    // Adicionar listener do agendamento de produto
+                    if (modalBookProductBtn) {
+                        modalBookProductBtn.addEventListener('click', handleBookProduct);
+                    }
+                    
+                    // Carregar e adicionar listeners do Staff
+                    if (businessModel === 'agendamento') {
+                        loadStaff(); // Carrega os listeners para o HTML estático
+                    }
+                }
+                
+                // Configurar menu mobile (apenas para delivery)
+                if (businessModel === 'delivery') {
+                    setupMobileMenu();
+                }
+            }
+            
+            /**
+             * Configura o menu mobile para o modo delivery
+             */
+            function setupMobileMenu() {
+                if (hamburgerMenu && mobileMenu && menuOverlay && mobileMenuClose) {
+                    hamburgerMenu.addEventListener('click', () => {
+                        mobileMenu.classList.add('active');
+                        menuOverlay.classList.add('active');
+                        body.classList.add('modal-active');
+                    });
+                    
+                    mobileMenuClose.addEventListener('click', closeMobileMenu);
+                    menuOverlay.addEventListener('click', closeMobileMenu);
+                    
+                    // Adicionar listeners para os links do menu mobile
+                    const mobileNavLinks = mobileMenu.querySelectorAll('.nav-link');
+                    mobileNavLinks.forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const targetModal = document.getElementById(link.dataset.modalTarget.replace('modal-target', 'modal'));
+                            if (targetModal) {
+                                closeMobileMenu();
+                                targetModal.classList.add('active');
+                                body.classList.add('modal-active');
+                            }
+                        });
+                    });
+                }
+            }
+            
+            function closeMobileMenu() {
+                if (mobileMenu) mobileMenu.classList.remove('active');
+                if (menuOverlay) menuOverlay.classList.remove('active');
+                body.classList.remove('modal-active');
+            }
+            
+            /**
+             * Configura as opções de localização
+             */
+            function setupLocationOptions() {
+                if (locationOptions.length === 0) return;
+                
+                // Mostrar detalhes da opção selecionada por padrão
+                deliveryDetails.classList.add('active');
+                
+                locationOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // Remover seleção de todas as opções
+                        locationOptions.forEach(opt => opt.classList.remove('selected'));
+                        // Adicionar seleção à opção clicada
+                        option.classList.add('selected');
+                        
+                        // Mostrar/ocultar detalhes conforme a opção
+                        const locationType = option.dataset.locationType;
+                        if (locationType === 'delivery') {
+                            deliveryDetails.classList.add('active');
+                            takeawayDetails.classList.remove('active');
+                        } else {
+                            deliveryDetails.classList.remove('active');
+                            takeawayDetails.classList.add('active');
+                        }
+                    });
+                });
+                
+                // Configurar botão de localização atual
+                if (useCurrentLocationBtn) {
+                    useCurrentLocationBtn.addEventListener('click', getCurrentLocation);
+                }
+            }
+            
+            /**
+             * Obtém a localização atual do utilizador
+             */
+            function getCurrentLocation() {
+                if (!navigator.geolocation) {
+                    alert('A geolocalização não é suportada pelo seu navegador.');
+                    return;
+                }
+                
+                useCurrentLocationBtn.textContent = 'A obter localização...';
+                useCurrentLocationBtn.disabled = true;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        // Usar a API de Geocodificação reversa para obter o endereço
+                        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=pt`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const address = `${data.locality}, ${data.city}, ${data.countryName}`;
+                                document.getElementById('delivery-address').value = address;
+                                useCurrentLocationBtn.textContent = 'Localização obtida!';
+                                
+                                // Reverter após 2 segundos
+                                setTimeout(() => {
+                                    useCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Usar Minha Localização Atual';
+                                    useCurrentLocationBtn.disabled = false;
+                                }, 2000);
+                            })
+                            .catch(error => {
+                                console.error('Erro ao obter endereço:', error);
+                                useCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Usar Minha Localização Atual';
+                                useCurrentLocationBtn.disabled = false;
+                                alert('Não foi possível obter o endereço a partir da localização.');
+                            });
+                    },
+                    (error) => {
+                        console.error('Erro ao obter localização:', error);
+                        useCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Usar Minha Localização Atual';
+                        useCurrentLocationBtn.disabled = false;
+                        
+                        let errorMessage = 'Não foi possível obter a sua localização. ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage += 'Permissão de localização negada.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage += 'Informação de localização indisponível.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage += 'Tempo de espera pela localização esgotado.';
+                                break;
+                            default:
+                                errorMessage += 'Ocorreu um erro desconhecido.';
+                        }
+                        alert(errorMessage);
+                    }
+                );
+            }
+            
+            /**
+             * Carrega os produtos em destaque para o modo delivery
+             */
+            async function loadFeaturedProducts() {
+                if (!featuredProductsGrid) return;
+                
+                try {
+                    const response = await fetch(`/api/loja/${shopSlug}/products`);
+                    if (!response.ok) throw new Error('Erro ao carregar produtos.');
+                    
+                    const products = await response.json();
+                    featuredProductsGrid.innerHTML = '';
+                    
+                    if (products.length === 0) {
+                        featuredProductsGrid.innerHTML = getEmptyStateHTML('fa-tag', 'Sem Produtos', 'Esta loja não tem produtos à venda no momento.');
+                        return;
+                    }
+                    
+                    // Mostrar apenas os primeiros 4 produtos como destaque
+                    const featuredProducts = products.slice(0, 4);
+                    
+                    featuredProducts.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+                        
+                        let priceDisplay = '';
+                        if (product.payment_mode === 'deposito' && product.deposit_value > 0) {
+                            priceDisplay = `${product.deposit_value.toFixed(2)} MZN (Sinal)`;
+                        } else {
+                            priceDisplay = `${product.preco.toFixed(2)} MZN`;
+                        }
+                        
+                        // Gerar ícone aleatório baseado no nome do produto
+                        const iconClass = getProductIconClass(product.nome);
+                        
+                        productCard.innerHTML = `
+                            <div class="product-icon-wrapper">
+                                <i class="fas ${iconClass} product-icon"></i>
+                            </div>
+                            <h3>${product.nome}</h3>
+                            <p class="price">${priceDisplay}</p>
+                        `;
+                        
+                        productCard.addEventListener('click', () => openProductModal(product));
+                        featuredProductsGrid.appendChild(productCard);
+                    });
+                    
+                } catch (error) {
+                    console.error(error);
+                    featuredProductsGrid.innerHTML = getEmptyStateHTML('fa-triangle-exclamation', 'Erro', 'Não foi possível carregar os produtos em destaque.');
+                }
+            }
+            
+            /**
+             * Retorna uma classe de ícone baseada no nome do produto
+             */
+            function getProductIconClass(productName) {
+                const name = productName.toLowerCase();
+                
+                if (name.includes('café') || name.includes('cafe') || name.includes('coffee')) {
+                    return 'fa-coffee';
+                } else if (name.includes('chá') || name.includes('cha') || name.includes('tea')) {
+                    return 'fa-leaf';
+                } else if (name.includes('acessório') || name.includes('acessorio') || name.includes('joia') || name.includes('joia')) {
+                    return 'fa-gem';
+                } else if (name.includes('roupa') || name.includes('vestuário') || name.includes('vestuario')) {
+                    return 'fa-tshirt';
+                } else if (name.includes('comida') || name.includes('alimento') || name.includes('prato')) {
+                    return 'fa-utensils';
+                } else if (name.includes('bebida') || name.includes('drink')) {
+                    return 'fa-glass-martini';
+                } else if (name.includes('doce') || name.includes('sobremesa') || name.includes('bolo')) {
+                    return 'fa-birthday-cake';
+                } else {
+                    return 'fa-box';
+                }
+            }
+
+            // --- FUNÇÕES DE NAVEGAÇÃO (MODAIS) ---
+            
+            /**
+             * Adiciona listeners para abrir modais e carregar dados "preguiçosamente"
+             */
+            modalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const targetId = trigger.dataset.modalTarget;
+                    const modal = document.getElementById(targetId);
+                    if(modal) {
+                        
+                        // --- LAZY LOAD (Carregamento Preguiçoso) ---
+                        // Só carrega os dados da API na primeira vez que o modal é aberto
+                        if (targetId === 'schedule-modal' && !servicesLoaded && businessModel === 'agendamento') {
+                            loadServices();
+                            servicesLoaded = true;
+                        }
+                        
+                        if (targetId === 'products-modal' && !productsLoaded) {
+                            loadProducts();
+                            productsLoaded = true;
+                        }
+                        if (targetId === 'bookings-modal' && !bookingsLoaded) {
+                            loadClientBookings();
+                            bookingsLoaded = true; // Mesmo que recarregue, marca como "iniciado"
+                        }
+                        
+                        if (targetId === 'reviews-modal' && !reviewsLoaded) {
+                            loadReviews(); // Placeholder
+                            reviewsLoaded = true;
+                        }
+                        if (targetId === 'blog-modal' && !blogLoaded) {
+                            loadBlogPosts(); // Placeholder
+                            blogLoaded = true;
+                        }
+                        // --- Lógica Específica para Abrir Modal de Checkout (Delivery) ---
+                        if (targetId === 'schedule-modal' && businessModel === 'delivery') {
+                            // Se está a abrir o checkout (clicando no carrinho),
+                            // renderiza o carrinho e vai para o passo 1
+                            renderCartItems();
+                            showStep('step-1-services');
+                        }
+                        
+                        // Abrir modal de chat
+                        if (targetId === 'chat-modal') {
+                            loadChatMessages();
+                        }
+                        
+                        modal.classList.add('active');
+                        body.classList.add('modal-active');
+                    }
+                });
+            });
+
+            /**
+             * Adiciona listeners para fechar modais
+             */
+            modalBackBtns.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal-overlay');
+                    modal.classList.remove('active');
+                    body.classList.remove('modal-active');
+                    
+                    // Se fechar o modal de agendamento/checkout, reinicia o fluxo
+                    if(modal.id === 'schedule-modal') {
+                         setTimeout(resetFlow, 300); // Dá tempo para a animação
+                    }
+                });
+            });
+
+            
+            // --- FUNÇÕES DO FLUXO DE AGENDAMENTO / CHECKOUT (ETAPAS) ---
+
+            /**
+             * Mostra uma etapa específica dentro da aba "Agendar"
+             * @param {string} stepId - O ID da etapa a mostrar (ex: "step-1-services")
+             */
+            function showStep(stepId) {
+                steps.forEach(step => {
+                    step.classList.toggle('active', step.id === stepId);
+                });
+                currentStep = stepId;
+                
+                if (businessModel === 'agendamento') {
+                    const step2BackButton = document.querySelector('#step-2-datetime .step-back-button');
+                    // Se o serviço tiver staff, o 'voltar' da Etapa 2 vai para Etapa 1b (Staff)
+                    // (Aqui assumimos que 'service' tem uma flag 'requires_staff')
+                    const serviceRequiresStaff = bookingState.service && (bookingState.service.requires_staff || true); // Default para true
+                    
+                    if (serviceRequiresStaff) {
+                        step2BackButton.dataset.target = 'step-1b-staff';
+                    } else {
+                        step2BackButton.dataset.target = 'step-1-services';
+                    }
+                }
+                
+                updateCtaButton(); 
+                
+                // Scroll para o topo do modal-body
+                const modalBody = document.getElementById('schedule-modal').querySelector('.modal-body');
+                if (modalBody) modalBody.scrollTo(0, 0);
+            }
+
+            /**
+             * Atualiza o botão principal (CTA) com base na etapa e estado
+             */
+            function updateCtaButton() {
+                if (!ctaButton) return;
+                
+                const ctaContainer = document.getElementById('schedule-cta-container');
+                
+                // Esconde o botão na etapa de sucesso
+                if (currentStep === 'step-4-success') {
+                    ctaContainer.style.display = 'none';
+                    return;
+                }
+                ctaContainer.style.display = 'block';
+                
+                // Lógica de Agendamento
+                if (businessModel === 'agendamento') {
+                    switch (currentStep) {
+                        case 'step-1-services':
+                            ctaButton.textContent = 'Continuar';
+                            ctaButton.disabled = !bookingState.service;
+                            break;
+                        case 'step-1b-staff':
+                            ctaButton.textContent = 'Continuar';
+                            ctaButton.disabled = !bookingState.staff;
+                            break;
+                        case 'step-2-datetime':
+                            ctaButton.textContent = 'Continuar';
+                            ctaButton.disabled = (!bookingState.service && !bookingState.product) || !bookingState.date || !bookingState.time;
+                            break;
+                        case 'step-3-confirm':
+                            const amountText = bookingState.amount_to_pay_now > 0 ? `Pagar ${bookingState.amount_to_pay_now.toFixed(2)} MZN` : 'Confirmar (Pagar no Local)';
+                            ctaButton.textContent = `Confirmar e ${amountText}`;
+                            ctaButton.disabled = false;
+                            break;
+                    }
+                }
+                // Lógica de Delivery
+                else {
+                     switch (currentStep) {
+                        case 'step-1-services': // (Revisão do Carrinho)
+                            ctaButton.textContent = 'Continuar para Entrega';
+                            ctaButton.disabled = shoppingCart.length === 0;
+                            break;
+                        case 'step-2-datetime': // (Detalhes da Entrega)
+                            ctaButton.textContent = 'Continuar para Pagamento';
+                            // Validação simples (será melhorada no handleCtaClick)
+                            ctaButton.disabled = false; 
+                            break;
+                        case 'step-3-confirm': // (Confirmação)
+                            const paymentType = document.querySelector('input[name="payment-method"]:checked').value;
+                            const amountText = (bookingState.amount_to_pay_now > 0 && paymentType === 'online')
+                                ? `Pagar ${bookingState.amount_to_pay_now.toFixed(2)} MZN` 
+                                : 'Confirmar (Pagar no Local)';
+                            ctaButton.textContent = `Finalizar e ${amountText}`;
+                            ctaButton.disabled = false;
+                            break;
+                    }
+                }
+            }
+            
+            /**
+             * Trata dos cliques no botão CTA principal (Agendamento / Checkout)
+             */
+            function handleCtaClick() {
+                ctaButton.disabled = true;
+
+                if (businessModel === 'agendamento') {
+                    // --- FLUXO DE AGENDAMENTO ---
+                    switch (currentStep) {
+                        case 'step-1-services':
+                            // (Assumindo que o objeto 'service' tem uma flag 'requires_staff')
+                            const serviceRequiresStaff = bookingState.service && (bookingState.service.requires_staff || true); // Default para true
+                            
+                            if (serviceRequiresStaff) {
+                                // loadStaff(bookingState.service.id); // Placeholder para carregar staff
+                                showStep('step-1b-staff');
+                            } else {
+                                // Pula a etapa de staff
+                                bookingState.staff = null; 
+                                itemPreselectedSummary.style.display = 'none';
+                                renderCalendar();
+                                showStep('step-2-datetime');
+                            }
+                            break;
+                        case 'step-1b-staff':
+                            // itemPreselectedSummary.style.display = 'none';
+                            renderCalendar();
+                            showStep('step-2-datetime');
+                            break;
+                        case 'step-2-datetime':
+                            populateConfirmation();
+                            showStep('step-3-confirm');
+                            break;
+                        case 'step-3-confirm':
+                            submitBooking(); // Envia para a API de Agendamento
+                            break;
+                    }
+                } else {
+                    // --- FLUXO DE DELIVERY ---
+                    switch (currentStep) {
+                        case 'step-1-services': // (Revisão do Carrinho)
+                            showStep('step-2-datetime');
+                            break;
+                        case 'step-2-datetime': // (Detalhes da Entrega)
+                            // Validação dos campos de entrega
+                            const orderType = document.querySelector('input[name="order-type"]:checked').value;
+                            if (orderType === 'delivery' && !clientAddressInput.value) {
+                                alert('Por favor, preencha a sua morada de entrega.');
+                                ctaButton.disabled = false;
+                                return;
+                            }
+                            populateConfirmation(); // Popula o resumo (Etapa 3)
+                            showStep('step-3-confirm');
+                            break;
+                        case 'step-3-confirm':
+                            submitOrder(); // Envia para a API de Encomenda
+                            break;
+                    }
+                }
+            }
+            
+            /**
+             * Trata dos cliques nos botões "Voltar" (DENTRO do fluxo)
+             */
+            function handleBackClick(e) {
+                const backButton = e.target.closest('.step-back-button');
+                if (backButton) {
+                    const targetStep = backButton.dataset.target;
+                    
+                    if (targetStep === 'step-1-services') {
+                        resetFlow(); // Reseta tudo se voltar ao passo 1
+                        showStep('step-1-services');
+                    } else if (targetStep === 'step-1b-staff') {
+                        // Se voltar do Calendário para o Staff, limpa staff e data/hora
+                        bookingState.staff = null;
+                        bookingState.date = null;
+                        bookingState.time = null;
+                        showStep('step-1b-staff');
+                    }
+                    else if (targetStep === 'step-2-datetime') {
+                        // Se voltar do Passo 3, limpa a hora (agendamento)
+                        if (businessModel === 'agendamento') bookingState.time = null;
+                        showStep('step-2-datetime');
+                    }
+                }
+            }
+
+            /**
+             * Reinicia todo o processo de marcação/encomenda
+             */
+            function resetFlow() {
+                // Estado de Agendamento
+                bookingState = { service: null, product: null, staff: null, date: null, time: null, amount_to_pay_now: 0.0 };
+                
+                // Estado de Delivery
+                shoppingCart = [];
+                updateCartUI();
+                
+                // Desmarca todos os serviços
+                serviceList.querySelectorAll('.list-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                
+                currentCalendarDate = new Date();
+                timeSlotsContainer.style.display = 'none'; // Esconde horários
+                itemPreselectedSummary.style.display = 'none'; // Esconde resumo de produto
+                
+                // Limpa o formulário
+                document.getElementById('client-name').value = '';
+                document.getElementById('client-phone').value = '';
+                document.getElementById('client-email').value = '';
+                clientAddressInput.value = '';
+                
+                // Mostra o passo 1 (seja serviços ou carrinho vazio)
+                if(businessModel === 'delivery') {
+                    renderCartItems(); // Mostra carrinho vazio
+                }
+                showStep('step-1-services');
+            }
+
+            // --- FUNÇÕES DE DADOS (API & LOCALSTORAGE) ---
+            
+            /**
+             * Helper de Estado Vazio
+             */
+            function getEmptyStateHTML(icon, title, message) {
+                return `
+                <div class="empty-state">
+                    <div class="icon"><i class="fa-solid ${icon}"></i></div>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>`;
+            }
+
+            /**
+             * Carrega os serviços (Etapa 1 - Agendamento)
+             */
+            async function loadServices() {
+                serviceList.innerHTML = '<div class="loader"></div>';
+                try {
+                    const response = await fetch(`/api/loja/${shopSlug}/services`);
+                    if (!response.ok) throw new Error('Erro ao carregar serviços.');
+                    
+                    const services = await response.json();
+                    serviceList.innerHTML = '';
+                    
+                    if (services.length === 0) {
+                        serviceList.innerHTML = getEmptyStateHTML('fa-scissors', 'Sem Serviços', 'Esta loja não tem serviços de agendamento disponíveis.');
+                        return;
+                    }
+                    
+                    services.forEach(service => {
+                        const li = document.createElement('li');
+                        li.className = 'list-item'; // Usa o estilo .list-item
+                        li.dataset.service = JSON.stringify(service);
+                        
+                        let priceDisplay = '';
+                        if (service.payment_mode === 'deposito' && service.deposit_value > 0) {
+                            priceDisplay = `${service.deposit_value.toFixed(2)} MZN (Sinal)`;
+                        } else {
+                            priceDisplay = `${service.preco.toFixed(2)} MZN`;
+                        }
+                        
+                        li.innerHTML = `
+                            <div class="list-item-content">
+                                <span class="list-item-icon"><i class="fa-solid fa-cut"></i></span>
+                                <span class="list-item-label">${service.nome}</span>
+                            </div>
+                            <div class="list-item-details">
+                                <span class="list-item-price">${priceDisplay}</span>
+                                <span class="list-item-sub">${service.duracao_min} min</span>
+                            </div>
+                        `;
+                        li.addEventListener('click', () => selectService(li, service));
+                        serviceList.appendChild(li);
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                    serviceList.innerHTML = getEmptyStateHTML('fa-triangle-exclamation', 'Erro', 'Não foi possível carregar os serviços.');
+                }
+            }
+
+            /**
+             * Trata da seleção de um serviço
+             */
+            function selectService(selectedItem, serviceData) {
+                serviceList.querySelectorAll('.list-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedItem.classList.add('selected');
+                
+                bookingState.service = serviceData;
+                bookingState.product = null; 
+                
+                updateCtaButton();
+            }
+            
+            /**
+             * Carrega os membros da equipa (Etapa 1b - Agendamento)
+             */
+            async function loadStaff(serviceId) {
+                staffList.innerHTML = '<div class="loader"></div>';
+                // Lógica de API para buscar staff...
+                // Por agora, usamos o HTML estático
+                staffList.querySelectorAll('.staff-item').forEach(item => {
+                    item.addEventListener('click', () => selectStaff(item, {
+                        id: item.dataset.staffId,
+                        nome: item.querySelector('.staff-name').textContent
+                    }));
+                });
+            }
+            
+            /**
+             * Trata da seleção de um membro da equipa
+             */
+            function selectStaff(selectedItem, staffData) {
+                staffList.querySelectorAll('.staff-item.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedItem.classList.add('selected');
+                bookingState.staff = staffData;
+                updateCtaButton();
+            }
+            
+            /**
+             * Carrega os Produtos (Aba Produtos)
+             */
+            async function loadProducts() {
+                productList.innerHTML = '<div id="loading-products" class="loader"></div>';
+                try {
+                    const response = await fetch(`/api/loja/${shopSlug}/products`);
+                    if (!response.ok) throw new Error('Erro ao carregar produtos.');
+                    
+                    const products = await response.json();
+                    productList.innerHTML = '';
+                    
+                    if (products.length === 0) {
+                        productList.innerHTML = getEmptyStateHTML('fa-tag', 'Sem Produtos', 'Esta loja não tem produtos à venda no momento.');
+                        return;
+                    }
+
+                    // Define a classe do container (ul) com base no layout
+                    if (productLayout === 'grid') {
+                        productList.className = 'product-grid';
+                    } else {
+                        productList.className = 'product-list'; // (Default)
+                    }
+                    
+                    products.forEach(product => {
+                        const li = document.createElement('li');
+                        
+                        let priceDisplay = '';
+                        if (product.payment_mode === 'deposito' && product.deposit_value > 0) {
+                            priceDisplay = `${product.deposit_value.toFixed(2)} MZN (Sinal)`;
+                        } else {
+                            priceDisplay = `${product.preco.toFixed(2)} MZN`;
+                        }
+                        
+                        if (productLayout === 'grid') {
+                            li.className = 'product-card clickable';
+                            li.innerHTML = `
+                                <img src="${product.image_url || 'https://placehold.co/300x450/e0e0e0/757575?text=Img'}" alt="${product.nome}" class="product-card-images">
+                                <div class="product-card-info">
+                                    <div class="product-card-name">${product.nome}</div>
+                                    <div class="product-card-price">${priceDisplay}</div>
+                                </div>
+                            `;
+                        } else {
+                            li.className = 'menu-item clickable';
+                            li.innerHTML = `
+                                <img src="${product.image_url || 'https://placehold.co/60x60/e0e0e0/757575?text=Img'}" alt="${product.nome}" class="menu-item-thumbnail">
+                                <div class="menu-item-details">
+                                    <span class="menu-item-name">${product.nome}</span>
+                                    <span class="menu-item-price">${priceDisplay}</span>
+                                </div>
+                                <i class="fas fa-chevron-right chevron-icon"></i>
+                            `;
+                        }
+                        
+                        li.addEventListener('click', () => openProductModal(product));
+                        productList.appendChild(li);
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                    productList.innerHTML = getEmptyStateHTML('fa-triangle-exclamation', 'Erro', 'Não foi possível carregar os produtos.');
+                }
+            }
+
+            /**
+             * Abre o modal de detalhe do produto (AGORA SUPORTA VARIANTES)
+             */
+            async function openProductModal(product) {
+                currentProductData = product; // Armazena os dados base
+                
+                // Limpa o estado anterior
+                complexProductDetails = { options: [], variants: [], selectedVariant: null };
+                document.getElementById('variant-selectors-container').innerHTML = '';
+
+                // UI Básica
+                document.getElementById('item-detail-image').src = product.image_url || 'https://placehold.co/400x250/e0e0e0/757575?text=Img';
+                document.getElementById('item-detail-name').textContent = product.nome;
+                document.getElementById('item-detail-description').textContent = product.descricao || 'Sem descrição disponível.';
+                
+                const priceEl = document.getElementById('item-detail-price');
+
+                // --- ATUALIZAÇÃO: Decide qual botão mostrar ---
+                if (businessModel === 'delivery') {
+                    modalAddToCartBtn.style.display = 'block';
+                    modalBookProductBtn.style.display = 'none';
+                    qtySelector.style.display = 'flex'; // Mostra seletor de qtd
+                    qtyInput.value = '1'; // Reseta a quantidade
+                } else {
+                    modalAddToCartBtn.style.display = 'none';
+                    modalBookProductBtn.style.display = 'block';
+                    qtySelector.style.display = 'none'; // Esconde seletor de qtd
+                }
+                
+                // --- NOVA LÓGICA DE VARIANTES ---
+                if (product.product_type === 'simples') {
+                    // Produto Simples (lógica antiga)
+                    let priceDisplay = '';
+                    if (product.payment_mode === 'deposito' && product.deposit_value > 0) {
+                        priceDisplay = `${product.deposit_value.toFixed(2)} MZN (Sinal de ${product.preco.toFixed(2)} MZN)`;
+                    } else {
+                        priceDisplay = `${product.preco.toFixed(2)} MZN`;
+                    }
+                    priceEl.textContent = priceDisplay;
+                    modalAddToCartBtn.disabled = false;
+                    modalBookProductBtn.disabled = false;
+
+                } else {
+                    // Produto Variável (lógica nova)
+                    priceEl.textContent = "A carregar opções...";
+                    modalAddToCartBtn.disabled = true;
+                    modalBookProductBtn.disabled = true; // (Agendamento de variantes não implementado)
+
+                    try {
+                        // Busca os detalhes complexos (API que já existe em app.py)
+                        const response = await fetch(`/api/loja/${shopSlug}/products/${product.id}/details`);
+                        const data = await response.json();
+                        
+                        complexProductDetails.options = data.options;
+                        complexProductDetails.variants = data.variants;
+                        
+                        renderVariantSelectors(); // Cria os <select>
+                        
+                        // Define o preço inicial (pode ser "A partir de...")
+                        const precos = data.variants.map(v => v.preco);
+                        const minPrice = Math.min(...precos);
+                        priceEl.textContent = `A partir de ${minPrice.toFixed(2)} MZN`;
+                        
+                    } catch (error) {
+                        priceEl.textContent = "Erro ao carregar opções.";
+                    }
+                }
+                // --- FIM DA NOVA LÓGICA ---
+                
+                itemDetailModal.classList.add('active');
+                body.classList.add('modal-active');
+            }
+            
+            /**
+             * Renderiza os <select> para as opções de variante no modal
+             */
+            function renderVariantSelectors() {
+                const container = document.getElementById('variant-selectors-container');
+                container.innerHTML = '';
+                
+                const options = complexProductDetails.options;
+                
+                options.forEach((opt, index) => {
+                    const selectorGroup = document.createElement('div');
+                    selectorGroup.className = 'variant-selector-group';
+                    selectorGroup.innerHTML = `
+                        <label for="variant-opt-${index}">${opt.name}</label>
+                        <select id="variant-opt-${index}" data-option-index="${index}" class="form-group input" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem;">
+                            <option value="">Selecione ${opt.name}</option>
+                            ${opt.values.map(val => `<option value="${val.id}">${val.value}</option>`).join('')}
+                        </select>
+                    `;
+                    container.appendChild(selectorGroup);
+                });
+                
+                // Adiciona listeners
+                container.querySelectorAll('select').forEach(select => {
+                    select.addEventListener('change', handleVariantSelection);
+                });
+            }
+            
+            /**
+             * Chamado sempre que um <select> de variante muda
+             */
+            function handleVariantSelection() {
+                const container = document.getElementById('variant-selectors-container');
+                const selectedValueIds = [];
+                let allOptionsSelected = true;
+
+                container.querySelectorAll('select').forEach(select => {
+                    if (select.value) {
+                        selectedValueIds.push(parseInt(select.value, 10));
+                    } else {
+                        allOptionsSelected = false;
+                    }
+                });
+                
+                const priceEl = document.getElementById('item-detail-price');
+                const addToCartBtn = document.getElementById('modal-add-to-cart-btn');
+                
+                if (!allOptionsSelected) {
+                    complexProductDetails.selectedVariant = null;
+                    priceEl.textContent = "Selecione as opções";
+                    addToCartBtn.disabled = true;
+                    return;
+                }
+                
+                // Procura a variante
+                const variants = complexProductDetails.variants;
+                const foundVariant = variants.find(v => {
+                    // Compara se os dois arrays de IDs são iguais, independentemente da ordem
+                    return v.option_value_ids.length === selectedValueIds.length && 
+                           v.option_value_ids.every(id => selectedValueIds.includes(id));
+                });
+                
+                if (foundVariant) {
+                    complexProductDetails.selectedVariant = foundVariant;
+                    priceEl.textContent = `${foundVariant.preco.toFixed(2)} MZN`;
+                    // TODO: Adicionar lógica de depósito aqui se necessário
+                    addToCartBtn.disabled = false; // TODO: Verificar stock (foundVariant.stock)
+                } else {
+                    complexProductDetails.selectedVariant = null;
+                    priceEl.textContent = "Combinação indisponível";
+                    addToCartBtn.disabled = true;
+                }
+            }
+            
+            /**
+             * Fecha o modal de detalhe do produto
+             */
+            function closeProductDetailModal() {
+                itemDetailModal.classList.remove('active');
+                body.classList.remove('modal-active');
+                currentProductData = null;
+            }
+            
+            /**
+             * Trata do clique em "Agendar este Item" (Modo Agendamento)
+             */
+            function handleBookProduct() {
+                if (!currentProductData) return;
+                
+                bookingState.product = currentProductData;
+                bookingState.service = null;
+                bookingState.staff = null;
+                document.getElementById('summary-preselected-item').textContent = `${currentProductData.nome} (${currentProductData.preco.toFixed(2)} MZN)`;
+                itemPreselectedSummary.style.display = 'block';
+                
+                closeProductDetailModal();
+                
+                setTimeout(() => {
+                    const scheduleModal = document.getElementById('schedule-modal');
+                    scheduleModal.classList.add('active');
+                    body.classList.add('modal-active');
+                    
+                    if (!servicesLoaded) { 
+                         loadServices(); // Precisa dos serviços p/ calcular disponibilidade?
+                         servicesLoaded = true;
+                    }
+                    
+                    // (Assumindo que produtos também podem ter staff associado)
+                    const productRequiresStaff = (currentProductData.requires_staff || false); 
+                    
+                    if (productRequiresStaff) {
+                        // loadStaff(null, currentProductData.id); // Placeholder
+                        showStep('step-1b-staff');
+                    } else {
+                        renderCalendar();
+                        showStep('step-2-datetime');
+                    }
+                }, 350);
+            }
+            
+            /**
+             * Trata do clique nos botões +/- de quantidade (Delivery)
+             */
+            function handleQtyChange(e) {
+                const action = e.target.dataset.action;
+                let qty = parseInt(qtyInput.value);
+                if (action === 'increase') {
+                    qty++;
+                } else if (action === 'decrease' && qty > 1) {
+                    qty--;
+                }
+                qtyInput.value = qty;
+            }
+            
+            /**
+             * Adiciona um item ao carrinho (AGORA SUPORTA VARIANTES)
+             */
+            function handleAddToCart() {
+                if (!currentProductData) return;
+                
+                const quantity = parseInt(qtyInput.value);
+                let itemToAdd = {};
+                
+                if (currentProductData.product_type === 'variavel') {
+                    // --- Lógica para Produto Variável ---
+                    const variant = complexProductDetails.selectedVariant;
+                    if (!variant) {
+                        alert("Por favor, selecione todas as opções do produto.");
+                        return;
+                    }
+                    
+                    // Cria um "produto" falso para o carrinho
+                    itemToAdd = {
+                        product: {
+                            id: currentProductData.id,
+                            variant_id: variant.id, // ID da Variante
+                            nome: `${currentProductData.nome} (${variant.name})`, // Nome (ex: T-Shirt (P / Vermelho))
+                            preco: variant.preco, // Preço da Variante
+                            image_url: currentProductData.image_url,
+                            // (A lógica de depósito deve ser aplicada por variante no futuro)
+                            payment_mode: currentProductData.payment_mode,
+                            deposit_value: currentProductData.deposit_value 
+                        },
+                        quantity: quantity
+                    };
+                    
+                } else {
+                    // --- Lógica para Produto Simples (Antiga) ---
+                    itemToAdd = {
+                        product: currentProductData,
+                        quantity: quantity
+                    };
+                }
+                
+                // Verifica se o item (ou variante) já está no carrinho
+                const existingItemIndex = shoppingCart.findIndex(item => 
+                    (item.product.variant_id && item.product.variant_id === itemToAdd.product.variant_id) ||
+                    (!item.product.variant_id && item.product.id === itemToAdd.product.id)
+                );
+                
+                if (existingItemIndex > -1) {
+                    shoppingCart[existingItemIndex].quantity += quantity;
+                } else {
+                    shoppingCart.push(itemToAdd);
+                }
+                
+                updateCartUI();
+                closeProductDetailModal();
+            }
+            
+            /**
+             * Atualiza o botão flutuante do carrinho
+             */
+            function updateCartUI() {
+                if (businessModel !== 'delivery') return;
+                
+                if (shoppingCart.length === 0) {
+                    cartButton.style.display = 'none';
+                    return;
+                }
+                
+                let totalItems = 0;
+                let totalPrice = 0;
+                
+                shoppingCart.forEach(item => {
+                    totalItems += item.quantity;
+                    // Usa o preço total para o display do carrinho
+                    totalPrice += item.product.preco * item.quantity; 
+                });
+                
+                cartCount.textContent = totalItems;
+                cartTotalPrice.textContent = `${totalPrice.toFixed(2)} MZN`;
+                cartButton.style.display = 'flex';
+            }
+            
+            /**
+             * Renderiza os itens do carrinho no Modal de Checkout (Etapa 1)
+             */
+            function renderCartItems() {
+                serviceList.innerHTML = ''; // Limpa a <ul>
+                
+                if (shoppingCart.length === 0) {
+                    serviceList.innerHTML = getEmptyStateHTML('fa-shopping-cart', 'Carrinho Vazio', 'Adicione itens do catálogo para continuar.');
+                    return;
+                }
+                
+                shoppingCart.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                    
+                    // Preço (depósito ou integral)
+                    let priceDisplay = '';
+                    if (item.product.payment_mode === 'deposito' && item.product.deposit_value > 0) {
+                        priceDisplay = `${item.product.deposit_value.toFixed(2)} MZN (Sinal)`;
+                    } else {
+                        priceDisplay = `${item.product.preco.toFixed(2)} MZN`;
+                    }
+
+                    li.innerHTML = `
+                        <img src="${item.product.image_url || 'https://placehold.co/60x60'}" class="cart-item-img" alt="${item.product.nome}">
+                        <div class="cart-item-details">
+                            <span class="cart-item-name">${item.product.nome}</span>
+                            <span class="cart-item-price">${item.quantity} x ${priceDisplay}</span>
+                        </div>
+                        <button class="cart-item-remove" data-index="${index}" aria-label="Remover item">
+                            <i class="fa-solid fa-trash-alt"></i>
+                        </button>
+                    `;
+                    serviceList.appendChild(li);
+                });
+                
+                // Adiciona listener para os botões de remover
+                serviceList.querySelectorAll('.cart-item-remove').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        shoppingCart.splice(btn.dataset.index, 1); // Remove do array
+                        renderCartItems(); // Re-renderiza a lista
+                        updateCartUI(); // Atualiza o botão flutuante
+                        updateCtaButton(); // Atualiza o CTA principal
+                    });
+                });
+            }
+            
+            // --- FUNÇÕES DE CALENDÁRIO (Etapa 2 - Agendamento) ---
+
+            /**
+             * Renderiza o calendário
+             */
+            function renderCalendar() {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Zera a hora
+                
+                const month = currentCalendarDate.getMonth();
+                const year = currentCalendarDate.getFullYear();
+                
+                calendarMonthYear.textContent = `${currentCalendarDate.toLocaleString('pt-PT', { month: 'long' })} ${year}`;
+                
+                const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0=Dom, 1=Seg
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const startDayIndex = firstDayOfMonth; 
+                
+                calendarGrid.innerHTML = `
+                    <div class="calendar-day-header">D</div>
+                    <div class="calendar-day-header">S</div>
+                    <div class="calendar-day-header">T</div>
+                    <div class="calendar-day-header">Q</div>
+                    <div class="calendar-day-header">Q</div>
+                    <div class="calendar-day-header">S</div>
+                    <div class="calendar-day-header">S</div>
+                `;
+
+                for (let i = 0; i < startDayIndex; i++) {
+                    calendarGrid.innerHTML += '<div></div>';
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'calendar-day';
+                    dayEl.textContent = day;
+                    
+                    const dayDate = new Date(year, month, day);
+                    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    dayEl.dataset.date = dateString;
+
+                    if (dayDate < today) {
+                        dayEl.classList.add('disabled');
+                    } else {
+                        dayEl.addEventListener('click', () => selectDate(dayEl, dateString));
+                    }
+                    
+                    if (dateString === bookingState.date) {
+                        dayEl.classList.add('selected');
+                    }
+                    calendarGrid.appendChild(dayEl);
+                }
+            }
+
+            /**
+             * Trata da seleção de uma data
+             */
+            function selectDate(selectedDayEl, dateString) {
+                calendarGrid.querySelectorAll('.calendar-day.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedDayEl.classList.add('selected');
+                
+                bookingState.date = dateString;
+                bookingState.time = null; // Limpa a hora
+                
+                timeSlotsTitle.textContent = `Horários para ${selectedDayEl.textContent} de ${currentCalendarDate.toLocaleString('pt-PT', { month: 'long' })}`;
+                loadTimeSlots(dateString);
+            }
+            
+            /**
+             * Carrega os horários disponíveis (Etapa 2 - Agendamento)
+             */
+            async function loadTimeSlots(dateString) {
+                timeSlotsGrid.innerHTML = '<div class="loader"></div>';
+                timeSlotsContainer.style.display = 'block';
+                updateCtaButton();
+                
+                const serviceId = bookingState.service ? bookingState.service.id : null;
+                const productId = bookingState.product ? bookingState.product.id : null;
+                const staffId = bookingState.staff ? bookingState.staff.id : null;
+                
+                let url = `/api/loja/${shopSlug}/availability?date=${dateString}`;
+                if (serviceId) {
+                    url += `&service_id=${serviceId}`;
+                } else if (productId) {
+                    // (Esta lógica pressupõe que produtos também usam agendamento)
+                    // (Na V2, produtos podem ter durações diferentes)
+                    url += `&product_id=${productId}`;
+                }
+                if (staffId && staffId !== 'any') {
+                    url += `&staff_id=${staffId}`;
+                }
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Erro ao buscar horários.');
+                    
+                    const slots = await response.json(); 
+
+                    timeSlotsGrid.innerHTML = '';
+                    if (slots.length === 0) {
+                        timeSlotsGrid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--theme-light-text);">Nenhum horário disponível para este dia.</p>`;
+                        return;
+                    }
+                    
+                    slots.forEach(time => {
+                        const slotEl = document.createElement('button');
+                        slotEl.className = 'time-slot';
+                        slotEl.textContent = time;
+                        slotEl.addEventListener('click', () => selectTime(slotEl, time));
+                        if (time === bookingState.time) {
+                            slotEl.classList.add('selected');
+                        }
+                        timeSlotsGrid.appendChild(slotEl);
+                    });
+                    
+                } catch (error) {
+                    console.error(error);
+                    timeSlotsGrid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #dc3545;">${error.message}</p>`;
+                }
+            }
+
+            /**
+             * Trata da seleção de um horário
+             */
+            function selectTime(selectedTimeEl, timeString) {
+                timeSlotsGrid.querySelectorAll('.time-slot.selected').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                selectedTimeEl.classList.add('selected');
+                
+                bookingState.time = timeString;
+                updateCtaButton();
+            }
+            
+            // --- FUNÇÕES DE POPULAÇÃO (Etapa 3 e 4) ---
+
+            /**
+             * Preenche o resumo da marcação (Etapa 3)
+             */
+            function populateConfirmation() {
+                let total_price = 0.0;
+                let amount_to_pay_now = 0.0;
+                let remaining_amount = 0.0;
+
+                if (businessModel === 'agendamento') {
+                    // --- MODO AGENDAMENTO ---
+                    const item = bookingState.service || bookingState.product;
+                    const dateObj = new Date(bookingState.date + 'T00:00:00'); // Fuso horário local
+                    
+                    summaryItemLine.style.display = 'block';
+                    summaryDateLine.style.display = 'block';
+                    summaryTimeLine.style.display = 'block';
+                    summaryTypeLine.style.display = 'none';
+                    summaryAddressLine.style.display = 'none';
+                    
+                    summaryService.textContent = item.nome;
+                    summaryDate.textContent = dateObj.toLocaleDateString('pt-PT', { 
+                        weekday: 'long', day: 'numeric', month: 'long' 
+                    });
+                    summaryTime.textContent = bookingState.time;
+                    
+                    if (bookingState.staff) {
+                        summaryStaff.textContent = bookingState.staff.nome;
+                        summaryStaffLine.style.display = 'block';
+                    } else {
+                        summaryStaffLine.style.display = 'none';
+                    }
+                    
+                    // Lógica de Preço (Agendamento)
+                    total_price = item.preco;
+                    if (item.payment_mode === 'deposito' && item.deposit_value > 0 && item.deposit_value < total_price) {
+                        amount_to_pay_now = item.deposit_value;
+                        remaining_amount = total_price - amount_to_pay_now;
+                    } else {
+                        amount_to_pay_now = total_price;
+                    }
+                
+                } else {
+                    // --- MODO DELIVERY ---
+                    summaryItemLine.style.display = 'none';
+                    summaryDateLine.style.display = 'none';
+                    summaryTimeLine.style.display = 'none';
+                    summaryStaffLine.style.display = 'none';
+                    summaryTypeLine.style.display = 'block';
+                    summaryAddressLine.style.display = 'block';
+                    
+                    const orderType = document.querySelector('input[name="order-type"]:checked').value;
+                    summaryOrderType.textContent = (orderType === 'delivery') ? 'Entrega (Delivery)' : 'Recolha (Takeaway)';
+                    
+                    if(orderType === 'delivery') {
+                        summaryOrderAddress.textContent = clientAddressInput.value;
+                    } else {
+                        summaryAddressLine.style.display = 'none';
+                    }
+                    
+                    // Lógica de Preço (Delivery)
+                    shoppingCart.forEach(item => {
+                        const item_total = item.product.preco * item.quantity;
+                        total_price += item_total;
+                        
+                        if (item.product.payment_mode === 'deposito' && item.product.deposit_value > 0) {
+                            amount_to_pay_now += (item.product.deposit_value * item.quantity);
+                        } else {
+                            amount_to_pay_now += item_total;
+                        }
+                    });
+                    remaining_amount = total_price - amount_to_pay_now;
+                }
+                
+                // Guarda o valor a pagar no estado
+                bookingState.amount_to_pay_now = amount_to_pay_now;
+                
+                // Atualiza o HTML do resumo de preço
+                summaryTotalPrice.textContent = `${total_price.toFixed(2)} MZN`;
+                summaryAmountToPay.textContent = `${amount_to_pay_now.toFixed(2)} MZN`;
+                summaryRemaining.textContent = `${remaining_amount.toFixed(2)} MZN`;
+                
+                // Atualiza o texto do botão CTA
+                updateCtaButton();
+            }
+
+            /**
+             * Preenche a mensagem de sucesso (Etapa 4)
+             */
+            function populateSuccessMessage(ticket) {
+                successTicket.textContent = ticket.ticket_number;
+                
+                if (businessModel === 'agendamento') {
+                    const dateObj = new Date(ticket.data_hora);
+                    const dateStr = dateObj.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' });
+                    const timeStr = dateObj.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+                    if(ticket.status === 'Aguardando Pagamento') {
+                        successTitle.textContent = "Pagamento Pendente";
+                        successMessage.innerHTML = `A sua marcação para <strong>${ticket.item_nome}</strong> no dia <strong>${dateStr}</strong> às <strong>${timeStr}</strong> está a aguardar pagamento.`;
+                    } else {
+                        successTitle.textContent = "Obrigado!";
+                        successMessage.innerHTML = `A sua marcação para <strong>${ticket.item_nome}</strong> no dia <strong>${dateStr}</strong> às <strong>${timeStr}</strong> está pendente de aprovação.`;
+                    }
+                    newBookingButton.textContent = "Fazer Nova Marcação";
+                } else {
+                    // Modo Delivery
+                     if(ticket.status === 'Aguardando Pagamento') {
+                        successTitle.textContent = "Pagamento Pendente";
+                        successMessage.innerHTML = `A sua encomenda <strong>${ticket.item_nome}</strong> está a aguardar pagamento.`;
+                    } else {
+                        successTitle.textContent = "Encomenda Recebida!";
+                        successMessage.innerHTML = `A sua encomenda <strong>${ticket.item_nome}</strong> foi recebida e está pendente de aprovação.`;
+                    }
+                    newBookingButton.textContent = "Fazer Nova Encomenda";
+                }
+            }
+            
+            /**
+             * Guarda o ticket no localStorage
+             */
+            function saveBookingToLocalStorage(bookingData) {
+                const allBookings = JSON.parse(localStorage.getItem('my_bookings') || '{}');
+                if (!allBookings[shopSlug]) {
+                    allBookings[shopSlug] = [];
+                }
+                
+                allBookings[shopSlug].push(bookingData);
+                
+                localStorage.setItem('my_bookings', JSON.stringify(allBookings));
+            }
+            
+            // --- FUNÇÕES DE SUBMISSÃO (Etapa 3) ---
+
+            /**
+             * Envia a marcação final para a API (Etapa 3 - Agendamento)
+             */
+            async function submitBooking() {
+                const nome = document.getElementById('client-name').value;
+                const telefone = document.getElementById('client-phone').value;
+                
+                if (!nome || !telefone) {
+                    alert('Por favor, preencha o seu nome e telemóvel.');
+                    ctaButton.disabled = false;
+                    return;
+                }
+                
+                const dataHoraISO = `${bookingState.date}T${bookingState.time}:00`;
+                const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                
+                const item = bookingState.service || bookingState.product;
+
+                const data = {
+                    service_id: bookingState.service ? item.id : null,
+                    product_id: bookingState.product ? item.id : null,
+                    staff_id: bookingState.staff ? bookingState.staff.id : null,
+                    data_hora: dataHoraISO,
+                    nome: nome,
+                    telefone: telefone,
+                    email: document.getElementById('client-email').value,
+                    payment_method: paymentMethod,
+                    coupon: document.getElementById('coupon-code').value,
+                    total_price: item.preco 
+                };
+
+                ctaButton.textContent = 'A confirmar...';
+                
+                if (paymentMethod === 'online') {
+                    ctaButton.textContent = 'A processar pagamento...';
+                }
+                
+                await performSubmit('book', data);
+            }
+            
+            /**
+             * Envia a encomenda final para a API (Etapa 3 - Delivery)
+             */
+            async function submitOrder() {
+                const nome = document.getElementById('client-name').value;
+                const telefone = document.getElementById('client-phone').value;
+                
+                if (!nome || !telefone) {
+                    alert('Por favor, preencha o seu nome e telemóvel.');
+                    ctaButton.disabled = false;
+                    return;
+                }
+                
+                const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                const orderType = document.querySelector('input[name="order-type"]:checked').value;
+                const address = clientAddressInput.value;
+                
+                if (orderType === 'delivery' && !address) {
+                    alert('Por favor, preencha a sua morada de entrega.');
+                    showStep('step-2-datetime'); // Volta ao passo 2
+                    ctaButton.disabled = false;
+                    return;
+                }
+                
+                // Prepara o carrinho para a API
+                const cartData = shoppingCart.map(item => ({
+                    id: item.product.id,
+                    qty: item.quantity,
+                    name: item.product.nome
+                    // TODO: Na Fase 2, enviar 'variant_id'
+                }));
+                
+                const data = {
+                    cart: cartData,
+                    customer: {
+                        nome: nome,
+                        telefone: telefone,
+                        email: document.getElementById('client-email').value
+                    },
+                    order_type: orderType,
+                    address: address,
+                    payment_method: paymentMethod,
+                    coupon: document.getElementById('coupon-code').value
+                };
+                
+                ctaButton.textContent = 'A confirmar...';
+                if (paymentMethod === 'online') {
+                    ctaButton.textContent = 'A processar pagamento...';
+                }
+                
+                await performSubmit('create-order', data);
+            }
+
+            /**
+             * Função interna para submeter (Agendamento ou Encomenda)
+             */
+            async function performSubmit(apiEndpoint, data) {
+                 try {
+                    const response = await fetch(`/api/loja/${shopSlug}/${apiEndpoint}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro ao enviar pedido.');
+                    
+                    if (result.action === 'redirect_to_payment') {
+                        // O backend quer redirecionar para o checkout
+                        window.location.href = result.checkout_url;
+                        return; // Pára a execução
+                    }
+                    
+                    // O 'result.booking' ou 'result.order' contém os dados de sucesso
+                    const successData = result.booking || result.order; 
+                    
+                    if (result.action === 'show_success_page' && successData) {
+                        saveBookingToLocalStorage(successData);
+                        populateSuccessMessage(successData);
+                        showStep('step-4-success');
+                    } else {
+                        throw new Error(result.error || 'Resposta inesperada do servidor.');
+                    }
+                    
+                    bookingsLoaded = false; // Invalida o cache de tickets
+                    if (businessModel === 'delivery') {
+                        shoppingCart = []; // Limpa o carrinho
+                        updateCartUI();
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    alert(`Erro: ${error.message}`);
+                    ctaButton.disabled = false;
+                    populateConfirmation(); 
+                    updateCtaButton();
+                }
+            }
+            
+            // --- FUNÇÕES DA ABA MEUS TICKETS ---
+
+            /**
+             * Carrega os tickets guardados localmente (Aba Meus Tickets)
+             */
+            function loadClientBookings() {
+                const allBookings = JSON.parse(localStorage.getItem('my_bookings') || '{}');
+                const shopBookings = allBookings[shopSlug] || [];
+                
+                localTicketsList.innerHTML = '';
+                
+                if (shopBookings.length === 0) {
+                    localTicketsList.innerHTML = getEmptyStateHTML('fa-ticket', 'Sem Tickets', 'Ainda não fez marcações nesta loja.');
+                    return;
+                }
+                
+                // Ordena por data, mais recentes primeiro
+                shopBookings.sort((a, b) => new Date(b.data_hora || b.created_at) - new Date(a.data_hora || a.created_at));
+                
+                shopBookings.forEach(ticket => {
+                    const div = document.createElement('div');
+                    div.className = 'ticket-item';
+                    
+                    const dateObj = new Date(ticket.data_hora || ticket.created_at);
+                    const dateFriendly = dateObj.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const timeFriendly = ticket.data_hora 
+                        ? dateObj.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+                        : `(Encomenda ${ticket.order_type || ''})`;
+
+                    const status = (ticket.status || 'Pendente').replace(' ', ''); // Remove espaços
+                    const statusClass = `ticket-status-${status}`;
+                    
+                    let footerActions = '';
+                    if (status === 'Pendente' || status === 'Aguardando') {
+                        footerActions = `
+                        <button class="btn-cancel-booking" data-ticket="${ticket.ticket_number}">
+                            <i class="fa-solid fa-times" style="margin-right: 5px;"></i>Cancelar
+                        </button>`;
+                    } else if (status === 'Concluido') {
+                         footerActions = `
+                        <button class="btn-review-booking" data-ticket="${ticket.ticket_number}">
+                            <i class="fa-solid fa-star" style="margin-right: 5px;"></i>Deixar Avaliação
+                        </button>`;
+                    }
+                    
+                    div.innerHTML = `
+                        <div class="ticket-item-header">
+                            <span class="ticket-status ${statusClass}">${ticket.status}</span>
+                            <span class="ticket-number">${ticket.ticket_number}</span>
+                        </div>
+                        <div class="ticket-item-body">
+                            <p><strong>Item:</strong> ${ticket.item_nome}</p>
+                            <p><strong>Data:</strong> ${dateFriendly}</p>
+                            <p><strong>Hora:</strong> ${timeFriendly}</p>
+                        </div>
+                        ${footerActions ? `<div class="ticket-item-footer">${footerActions}</div>` : ''}
+                    `;
+                    
+                    div.querySelector('.btn-cancel-booking')?.addEventListener('click', () => {
+                        cancelBooking(ticket.ticket_number);
+                    });
+                    
+                    // Listener para botão de avaliação
+                    div.querySelector('.btn-review-booking')?.addEventListener('click', () => {
+                        alert(`Abrir modal de avaliação para o ticket ${ticket.ticket_number}`);
+                    });
+                    
+                    localTicketsList.appendChild(div);
+                });
+            }
+            
+            /**
+             * Cancela um ticket (notifica o backend e atualiza o localStorage)
+             */
+            async function cancelBooking(ticketNumber) {
+                if (!confirm(`Tem a certeza que quer cancelar o ticket ${ticketNumber}?`)) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/loja/${shopSlug}/cancel`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ticket_number: ticketNumber })
+                    });
+                    
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro ao cancelar no servidor');
+                    
+                    const allBookings = JSON.parse(localStorage.getItem('my_bookings') || '{}');
+                    let shopBookings = allBookings[shopSlug] || [];
+                    
+                    shopBookings = shopBookings.map(t => {
+                        if (t.ticket_number === ticketNumber) {
+                            t.status = 'Cancelado'; 
+                        }
+                        return t;
+                    });
+                    
+                    allBookings[shopSlug] = shopBookings;
+                    localStorage.setItem('my_bookings', JSON.stringify(allBookings));
+                    
+                    loadClientBookings(); // Recarrega a lista
+                    
+                } catch(error) {
+                    console.error(error);
+                    alert(`Não foi possível cancelar a marcação: ${error.message}`);
+                }
+            }
+
+            // --- INICIALIZAÇÃO E EVENT LISTENERS ---
+
+            // Botão CTA principal (Agendamento / Checkout)
+            if (ctaButton) {
+                ctaButton.addEventListener('click', handleCtaClick);
+            }
+            
+            // Botões "Voltar" (usando delegação de eventos)
+            if (appContainer) {
+                appContainer.addEventListener('click', handleBackClick);
+            }
+            
+            // Botão "Fazer Nova Marcação/Encomenda" (Sucesso)
+            if (newBookingButton) {
+                newBookingButton.addEventListener('click', resetFlow);
+            }
+            
+            // Navegação do Calendário
+            if (calendarPrev && calendarNext) {
+                calendarPrev.addEventListener('click', () => {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                    renderCalendar();
+                    timeSlotsContainer.style.display = 'none';
+                    bookingState.date = null;
+                    bookingState.time = null;
+                    updateCtaButton();
+                });
+                
+                calendarNext.addEventListener('click', () => {
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                    renderCalendar();
+                    timeSlotsContainer.style.display = 'none';
+                    bookingState.date = null;
+                    bookingState.time = null;
+                    updateCtaButton();
+                });
+            }
+            
+            // Botão de Chat
+            const chatButton = document.getElementById('chat-button');
+            if (chatButton) {
+                chatButton.addEventListener('click', () => {
+                    const chatModal = document.getElementById('chat-modal');
+                    if (chatModal) {
+                        chatModal.classList.add('active');
+                        body.classList.add('modal-active');
+                    }
+                });
+            }
+            
+            // --- INICIALIZAÇÃO ---
+            initializeUI();
+
+        });
+    </script>
+
+</body>
+</html>

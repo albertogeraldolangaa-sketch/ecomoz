@@ -1,0 +1,37 @@
+/app
+  /templates
+    /dashboard
+      base.html                   <-- Layout Principal
+      /components
+         sidebar.html             <-- Menu Lateral
+         header.html              <-- Barra de Topo
+      /modals                     <-- Todos os Modais separados
+         product_simple.html
+         product_complex.html
+         service.html
+         staff.html
+         client.html
+         coupon.html
+         blog.html
+         campaign.html
+         review.html
+         quote.html
+         shop_create.html
+         upgrade.html
+  /static
+    /css
+       dashboard.css              <-- Estilos personalizados
+    /js
+      /dashboard
+         api.js                   <-- Lógica de conexão com servidor
+         core.js                  <-- Inicialização e Navegação
+         utils.js                 <-- Formatadores (Moeda, Datas)
+         /pages                   <-- Controladores de cada ecrã
+            metrics.js
+            orders.js
+            products.js
+            services.js
+            staff.js
+            crm.js
+            marketing.js
+            settings.js

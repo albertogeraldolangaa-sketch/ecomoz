@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Admin
+Flask-Bcrypt
+Flask-Migrate
+Flask-Cors
+python-dotenv
+requests
+Flask-Mail
+itsdangerous

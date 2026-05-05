@@ -1,0 +1,53 @@
+<div id="modal-add-campaign" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('modal-add-campaign')"></div>
+
+    <div class="modal-center-card relative w-full max-w-md overflow-hidden flex flex-col">
+        
+        <div class="h-32 bg-gradient-to-tr from-purple-600 to-pink-500 relative flex items-end p-6">
+            <button onclick="closeModal('modal-add-campaign')" class="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white backdrop-blur-md transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-white">
+                <div class="inline-flex p-2 bg-white/20 backdrop-blur-md rounded-lg mb-2">
+                    <i data-lucide="megaphone" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-2xl font-bold tracking-tight">Nova Campanha</h3>
+            </div>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <form id="form-campaign" class="space-y-5">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Nome</label>
+                    <input type="text" id="campaign_name" class="w-full mt-1 border-b-2 border-gray-200 focus:border-purple-500 px-0 py-2 text-lg font-medium bg-transparent focus:outline-none transition-colors placeholder-gray-300" placeholder="Ex: Promoção de Verão" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Orçamento</label>
+                        <div class="flex items-baseline mt-1">
+                            <span class="text-gray-400 mr-1">MT</span>
+                            <input type="number" id="campaign_budget" class="w-full border-b-2 border-gray-200 focus:border-purple-500 px-0 py-2 text-xl font-bold bg-transparent focus:outline-none" placeholder="5000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Meta</label>
+                        <select id="campaign_target" class="w-full mt-1 border-b-2 border-gray-200 focus:border-purple-500 px-0 py-2 bg-transparent focus:outline-none font-medium">
+                            <option value="shop">Visitas ao Perfil</option>
+                            <option value="product">Venda de Produto</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl flex gap-3 items-start">
+                    <i data-lucide="info" class="w-5 h-5 text-purple-600 mt-0.5 shrink-0"></i>
+                    <p class="text-sm text-purple-800 dark:text-purple-200">A sua campanha será destacada no marketplace por 7 dias.</p>
+                </div>
+            </form>
+
+            <button type="submit" form="form-campaign" class="w-full py-4 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-xl">
+                Lançar Campanha 🚀
+            </button>
+        </div>
+    </div>
+</div>

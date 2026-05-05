@@ -1,0 +1,162 @@
+<div id="modal-my-shops" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4 flex">
+    
+    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-my-shops')"></div>
+
+    <div class="modal-center-card w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl transform transition-all duration-300 overflow-hidden flex flex-col">
+        
+        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Os Seus Negócios</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Gerir e alternar entre lojas.</p>
+            </div>
+            <button onclick="closeModal('modal-my-shops')" class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            
+            <div class="space-y-3">
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Loja Ativa</label>
+                
+                <div class="group relative flex items-center justify-between p-3 bg-white dark:bg-gray-800 border-2 border-blue-500 rounded-xl shadow-sm transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-lg shadow-md" id="current-shop-avatar">
+                            L
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 dark:text-white leading-tight" id="current-shop-name">Minha Loja</p>
+                            <p class="text-xs text-blue-600 dark:text-blue-400 font-medium truncate max-w-[150px]" id="current-shop-slug">@slug</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Online</span>
+                    </div>
+                </div>
+                
+                <a href="#" id="link-view-shop" target="_blank" class="flex items-center justify-center w-full py-2 text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors border border-dashed border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-800">
+                    <i data-lucide="external-link" class="w-3 h-3 mr-1.5"></i> Ver Loja Online
+                </a>
+            </div>
+
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-white dark:bg-gray-900 px-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Expansão</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-blue-500"></i> Criar Nova Filial
+                </h4>
+                
+                <form id="form-create-shop" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nome Comercial</label>
+                        <input type="text" id="new_shop_name" class="block w-full rounded-lg border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition-shadow" placeholder="Ex: Ecomoz Maputo" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Endereço Web</label>
+                        <div class="flex rounded-lg shadow-sm">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs select-none">ecomoz.com/</span>
+                            <input type="text" id="new_shop_slug" class="block w-full min-w-0 flex-1 rounded-none rounded-r-lg border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition-shadow font-medium text-gray-700 dark:text-gray-200" placeholder="nova-filial" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-bold rounded-lg text-white bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 shadow-lg transition-all transform hover:-translate-y-0.5">
+                        <i data-lucide="rocket" class="w-4 h-4 mr-2"></i> Lançar Loja
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+// Lógica do Modal de Lojas
+async function openShopsModal() {
+    // Atualizar dados da loja atual na UI
+    const shopName = shopData.profile.nome_loja || 'Loja Sem Nome';
+    const shopSlug = shopData.profile.slug || '';
+    
+    document.getElementById('current-shop-avatar').textContent = shopName.charAt(0).toUpperCase();
+    document.getElementById('current-shop-name').textContent = shopName;
+    document.getElementById('current-shop-slug').textContent = '@' + shopSlug;
+    
+    // Atualizar link externo
+    const linkView = document.getElementById('link-view-shop');
+    if(linkView) linkView.href = `/loja/${shopSlug}`;
+    
+    // Gerar slug automático ao digitar o nome
+    const nameInput = document.getElementById('new_shop_name');
+    const slugInput = document.getElementById('new_shop_slug');
+    
+    nameInput.oninput = (e) => {
+        // Slugify simples: minúsculas, remove acentos, substitui espaços por hífens
+        const val = e.target.value;
+        const slug = val.toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
+                        .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+                        .trim()
+                        .replace(/\s+/g, '-');
+        slugInput.value = slug;
+    };
+
+    openModal('modal-my-shops');
+}
+
+async function handleCreateShop(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalContent = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner w-4 h-4 mr-2"></span> A criar...';
+
+    const nome = document.getElementById('new_shop_name').value;
+    const slug = document.getElementById('new_shop_slug').value;
+
+    try {
+        const res = await apiFetch('/api/dashboard/shops/create', {
+            method: 'POST',
+            body: { nome_loja: nome, slug: slug }
+        });
+        
+        showToast('Nova loja criada com sucesso! A redirecionar...', 'success');
+        closeModal('modal-my-shops');
+        
+        // Recarregar para mudar o contexto da sessão (o backend deve lidar com a troca ou o refresh resolve)
+        setTimeout(() => {
+            window.location.reload(); 
+        }, 1000);
+
+    } catch (error) {
+        if (error.message.includes("Upgrade")) {
+            // Se for erro de plano, abre o modal de upgrade (se existir)
+            closeModal('modal-my-shops');
+            if(typeof showUpgradeModal === 'function') {
+                showUpgradeModal("Atingiu o limite de lojas do seu plano.");
+            } else {
+                showToast(error.message, 'error');
+            }
+        } else {
+            showToast(error.message, 'error');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+}
+
+// Adiciona o listener apenas se o formulário existir no DOM
+const shopForm = document.getElementById('form-create-shop');
+if (shopForm) {
+    shopForm.addEventListener('submit', handleCreateShop);
+}
+</script>

@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - A Minha Loja</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Permite dark mode
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Cores personalizadas para o dashboard
+                        'primary': {
+                            '50': '#eff6ff',
+                            '100': '#dbeafe',
+                            '200': '#bfdbfe',
+                            '300': '#93c5fd',
+                            '400': '#60a5fa',
+                            '500': '#3b82f6', // Azul primário
+                            '600': '#2563eb',
+                            '700': '#1d4ed8',
+                            '800': '#1e40af',
+                            '900': '#1e3a8a',
+                            '950': '#172554'
+                        },
+                        'secondary': '#111827' // Cor da sidebar
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer base {
+            html { 
+                font-family: 'Inter', sans-serif; 
+                scroll-behavior: smooth;
+            }
+            body { 
+                @apply bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200; 
+            }
+            
+            /* Estilo da scrollbar */
+            ::-webkit-scrollbar {
+                @apply w-2 h-2;
+            }
+            ::-webkit-scrollbar-thumb {
+                @apply rounded-full bg-gray-400 dark:bg-gray-600;
+            }
+            ::-webkit-scrollbar-track {
+                @apply bg-gray-100 dark:bg-gray-800;
+            }
+            
+            /* Estilo dos links da sidebar */
+            .nav-link {
+                @apply flex items-center rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-all duration-150;
+            }
+            .nav-link:hover {
+                @apply bg-gray-800 text-white;
+            }
+            .nav-link.active {
+                @apply bg-primary-600 text-white shadow-lg;
+            }
+            
+            /* Estilo dos inputs */
+            .form-input {
+                @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white;
+            }
+            .form-label {
+                @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+            }
+            .form-group {
+                @apply mb-4;
+            }
+            
+            /* Botões */
+            .btn {
+                @apply inline-flex items-center justify-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2;
+            }
+            .btn-primary {
+                @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+            }
+            .btn-secondary {
+                @apply bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 focus:ring-primary-500;
+            }
+            .btn-danger {
+                @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+            }
+            .btn-danger-outline {
+                 @apply bg-transparent text-red-600 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20;
+            }
+            .btn-icon {
+                @apply p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800;
+            }
+
+            /* Cards */
+            .card {
+                @apply overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10;
+            }
+            .card-header {
+                @apply border-b border-gray-200 dark:border-gray-800 p-5;
+            }
+            .card-content {
+                @apply p-5;
+            }
+            .card-footer {
+                @apply border-t border-gray-200 dark:border-gray-800 p-5 bg-gray-50 dark:bg-gray-900/50;
+            }
+
+            /* Abas da Agenda */
+            .agenda-tab {
+                @apply group inline-flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium;
+            }
+            .agenda-tab.active {
+                @apply border-primary-500 text-primary-600 dark:text-primary-400;
+            }
+            .agenda-tab:not(.active) {
+                @apply border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200;
+            }
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sprite de Ícones SVG -->
+    <svg width="0" height="0" class="hidden">
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-layout-dashboard">
+            <rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-calendar">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-monitor">
+            <rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-palette">
+            <circle cx="13.5" cy="6.5" r="3.5"></circle><circle cx="17.5" cy="17.5" r="3.5"></circle><circle cx="8.5" cy="17.5" r="3.5"></circle><circle cx="6.5" cy="13.5" r="3.5"></circle>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-tag">
+            <path d="M12.586 2.586a2 2 0 0 0-2.828 0L2.586 9.757a2 2 0 0 0 0 2.828l7.172 7.172a2 2 0 0 0 2.828 0l7.172-7.172a2 2 0 0 0 0-2.828L12.586 2.586z"></path><circle cx="8.5" cy="8.5" r="1.5"></circle>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-scissors">
+            <circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" x2="8.12" y1="4" y2="15.88"></line><line x1="14.47" x2="20" y1="14.48" y2="20"></line><line x1="8.12" x2="12" y1="8.12" y2="12"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-clock">
+            <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-qr-code">
+            <rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-5v5M12 7v.01M12 11v.01M12 15v.01M7 12h.01M11 12h.01M15 12h.01M7 7h.01M7 11h.01M7 15h.01M11 7h.01M11 11h.01M11 15h.01M15 7h.01M15 11h.01M15 15h.01"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-save">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-dollar-sign">
+            <line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-credit-card">
+            <rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-bell">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-users">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-plus">
+            <line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-edit-2">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-trash-2">
+            <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-x">
+            <line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-check">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-chevron-right">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-logout">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-menu">
+            <line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="18" y2="18"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-sun">
+            <circle cx="12" cy="12" r="5"></circle><line x1="12" x2="12" y1="1" y2="3"></line><line x1="12" x2="12" y1="21" y2="23"></line><line x1="4.22" x2="5.64" y1="4.22" y2="5.64"></line><line x1="18.36" x2="19.78" y1="18.36" y2="19.78"></line><line x1="1" x2="3" y1="12" y2="12"></line><line x1="21" x2="23" y1="12" y2="12"></line><line x1="4.22" x2="5.64" y1="19.78" y2="18.36"></line><line x1="18.36" x2="19.78" y1="5.64" y2="4.22"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-moon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-alert-triangle">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-copy">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-download">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line>
+        </symbol>
+        <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-package-search">
+            <path d="M21.8 8.8c.2.4.2.8 0 1.2l-4.2 7.2c-.4.7-1.2 1-2 .9L4.1 15.4c-.8-.2-1.4-.8-1.6-1.6L.8 4.6c-.2-.8.3-1.6 1.1-1.8L11.1.3c.8-.2 1.6.3 1.8 1.1l4.2 7.4Z"></path><path d="m15.2 12.4 4.8-2.6"></path><path d="M6.5 15.3 11 18"></path><circle cx="11" cy="11" r="3"></circle><path d="m13 13 1.5 1.5"></path>
+        </symbol>
+    </svg>
+    
+    <!-- Sidebar (Menu Lateral) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 flex h-screen w-64 -translate-x-full flex-col border-r border-gray-800 bg-secondary text-gray-300 shadow-lg transition-transform duration-300 lg:translate-x-0">
+        <div class="flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-800 px-6">
+            <a href="/dashboard" class="text-2xl font-bold text-white">
+                Marcacoes<span class="text-primary-400">.com</span>
+            </a>
+            <button id="close-menu" class="lg:hidden text-gray-400 hover:text-white">
+                <svg class="h-6 w-6"><use href="#icon-x"></use></svg>
+            </button>
+        </div>
+        
+        <!-- Links de Navegação -->
+        <nav class="flex-1 overflow-y-auto px-4 py-6">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="nav-link" data-page="page-metricas">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-layout-dashboard"></use></svg>
+                        Métricas
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-page="page-agenda">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-calendar"></use></svg>
+                        <!-- ATUALIZAÇÃO: O JS vai mudar este nome -->
+                        <span id="nav-agenda-text">Agenda (Tickets)</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/kds" target="_blank" class="nav-link">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-monitor"></use></svg>
+                        Abrir Ecrã de Tickets
+                    </a>
+                </li>
+
+                <li class="pt-4 pb-2 px-2"><span class="text-xs font-semibold uppercase text-gray-500">Configurar Loja</span></li>
+
+                <li>
+                    <a href="#" class="nav-link" data-page="page-personalizar">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-palette"></use></svg>
+                        Personalizar Página
+                    </a>
+                </li>
+                <!-- 
+                ============================================================
+                 ATUALIZAÇÃO: Lógica de Bifurcação (Agendamento vs. Delivery)
+                 O JS vai mostrar/esconder com base no business_model
+                ============================================================
+                -->
+                <li id="nav-servicos">
+                    <a href="#" class="nav-link" data-page="page-servicos">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-scissors"></use></svg>
+                        Serviços (Agend.)
+                    </a>
+                </li>
+                <li id="nav-produtos">
+                    <a href="#" class="nav-link" data-page="page-produtos">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-tag"></use></svg>
+                        Produtos (Venda)
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-page="page-horario">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-clock"></use></svg>
+                        <!-- ATUALIZAÇÃO: O JS vai mudar este nome -->
+                        <span id="nav-horario-text">Horário</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-page="page-promover">
+                        <svg class="mr-4 h-5 w-5"><use href="#icon-qr-code"></use></svg>
+                        Promover (QR Code)
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Perfil e Logout -->
+        <div class="mt-auto border-t border-gray-800 p-4">
+            <div class="mb-4 flex items-center">
+                <img id="user-profile-img" class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/3b82f6/white?text=L" alt="Foto de perfil">
+                <div class="ml-3">
+                    <p class="text-sm font-semibold text-white">{{ user_nome | default('Nome do Dono') }}</p>
+                    <p class="text-xs text-gray-400">Dono da Loja</p>
+                </div>
+            </div>
+            <a href="/logout" id="logout-button" class="btn btn-secondary w-full !justify-start !text-red-500 dark:!text-red-400 dark:!bg-gray-800 dark:hover:!bg-red-900/20">
+                <svg class="mr-3 h-5 w-5"><use href="#icon-logout"></use></svg>
+                Sair
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Overlay para Menu Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-20 hidden bg-black/50 backdrop-blur-sm lg:hidden"></div>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex flex-1 flex-col lg:pl-64">
+        
+        <!-- Cabeçalho Superior -->
+        <header class="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white/90 px-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/90 sm:px-6 lg:px-8">
+            <div class="flex items-center">
+                <button id="open-menu" class="btn-icon -ml-2 mr-2 lg:hidden">
+                    <svg class="h-6 w-6"><use href="#icon-menu"></use></svg>
+                </button>
+                <h1 id="page-title" class="text-xl font-semibold dark:text-white">Métricas</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggler" class="btn-icon">
+                    <svg id="theme-icon-sun" class="h-5 w-5"><use href="#icon-sun"></use></svg>
+                    <svg id="theme-icon-moon" class="h-5 w-5 hidden"><use href="#icon-moon"></use></svg>
+                </button>
+                <button id="save-button" class="btn btn-primary hidden">
+                    <svg class="mr-2 h-5 w-5 -ml-1"><use href="#icon-save"></use></svg>
+                    Guardar Alterações
+                </button>
+            </div>
+        </header>
+
+        <!-- Página: Métricas -->
+        <main id="page-metricas" class="page-content flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Card Ganhos -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900/50 dark:text-green-400">
+                                <svg class="h-6 w-6"><use href="#icon-dollar-sign"></use></svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ganhos (Confirmados)</p>
+                                <p id="metric-revenue" class="text-2xl font-semibold">0,00 MZN</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Marcações -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
+                                <svg class="h-6 w-6"><use href="#icon-calendar"></use></svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400" id="metric-bookings-label">Total de Marcações</p>
+                                <p id="metric-bookings" class="text-2xl font-semibold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Pendentes -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-orange-100 p-3 text-orange-600 dark:bg-orange-900/50 dark:text-orange-400">
+                                <svg class="h-6 w-6"><use href="#icon-bell"></use></svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400" id="metric-pending-label">Novas Pendentes</p>
+                                <p id="metric-pending" class="text-2xl font-semibold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Visitantes -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-purple-100 p-3 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400">
+                                <svg class="h-6 w-6"><use href="#icon-users"></use></svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Visitantes na Página</p>
+                                <p id="metric-visitors" class="text-2xl font-semibold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lista de Pendentes Recentes -->
+            <div class="card mt-6">
+                <div class="card-header"><h3 class="text-lg font-semibold" id="lista-pendentes-label">Marcações Pendentes Recentes</h3></div>
+                <ul id="lista-pendentes" class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <!-- Conteúdo carregado por JS -->
+                </ul>
+            </div>
+        </main>
+        
+        <!-- 
+        ============================================================
+         Página: Personalizar (MODIFICADA)
+         Inclui a bifurcação de Modelo de Negócio e Layout
+        ============================================================
+        -->
+        <main id="page-personalizar" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <form id="form-personalizar" class="mx-auto max-w-4xl space-y-6" onsubmit="return false;">
+                
+                <!-- Card Perfil da Loja -->
+                <div class="card">
+                    <div class="card-header"><h3 class="text-lg font-semibold">Perfil da Loja</h3></div>
+                    <div class="card-content space-y-4">
+                        
+                        <!-- --- NOVO BLOCO: Modelo de Negócio (Read-only) --- -->
+                        <div>
+                            <label class="form-label">Tipo de Negócio</label>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Definido no registo. Muda os menus e a página pública.</p>
+                            <input type="text" id="shop-business-model-display" class="form-input mt-2 bg-gray-100 dark:bg-gray-800" readonly disabled>
+                        </div>
+                        <hr class="border-gray-200 dark:border-gray-700"/>
+                        <!-- --- FIM DO NOVO BLOCO --- -->
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Foto de Perfil -->
+                            <div class="md:col-span-1">
+                                <label class="form-label">Foto de Perfil</label>
+                                <img id="img-preview-profile" src="https://placehold.co/256x256/e0e0e0/757575?text=Perfil" class="mt-2 h-32 w-32 rounded-full object-cover ring-4 ring-white dark:ring-gray-900">
+                                <input type="file" id="input-upload-profile" class="hidden" accept="image/*">
+                                <input type="hidden" id="input-profile-url">
+                                <button type="button" onclick="document.getElementById('input-upload-profile').click()" class="btn btn-secondary mt-2 text-sm">Alterar Foto</button>
+                            </div>
+                            <!-- Banner KDS -->
+                            <div class="md:col-span-2">
+                                <label class="form-label">Banner / Anúncio (para Ecrã de Tickets)</label>
+                                <img id="img-preview-announcement" src="https://placehold.co/600x200/e0e0e0/757575?text=Banner+KDS" class="mt-2 h-32 w-full object-cover rounded-lg">
+                                <input type="file" id="input-upload-announcement" class="hidden" accept="image/*,video/*">
+                                <input type="hidden" id="input-announcement-url">
+                                <button type="button" onclick="document.getElementById('input-upload-announcement').click()" class="btn btn-secondary mt-2 text-sm">Alterar Imagem/Vídeo</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="shop-name" class="form-label">Nome da Loja</label>
+                            <input type="text" id="shop-name" class="form-input">
+                        </div>
+                        <div>
+                            <label for="shop-url" class="form-label">URL Personalizado (Slug)</label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">marcacoes.com/loja/</span>
+                                <input type="text" id="shop-url" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="shop-description" class="form-label">Descrição Curta</label>
+                            <textarea id="shop-description" rows="3" class="form-input" placeholder="Uma breve descrição da sua loja..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Cores & Layout -->
+                <div class="card">
+                    <div class="card-header"><h3 class="text-lg font-semibold">Cores & Layout da Minipágina</h3></div>
+                    <div class="card-content grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="shop-theme-color" class="form-label">Cor Principal</label>
+                            <input type="color" id="shop-theme-color" class="mt-1 h-10 w-full rounded-md border-gray-300 dark:border-gray-700">
+                        </div>
+                        <div>
+                            <label for="shop-layout-style" class="form-label">Estilo do Layout (Em breve)</label>
+                            <select id="shop-layout-style" class="form-input" disabled>
+                                <option value="default">Padrão (Botões)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 
+                        ============================================================
+                         NOVO BLOCO: Estilo da Lista (Lista vs. Grelha)
+                        ============================================================
+                        -->
+                        <div class="md:col-span-2" id="product-layout-selector-container">
+                            <label class="form-label">Estilo da Lista de Produtos/Serviços</label>
+                            <fieldset class="mt-2">
+                                <legend class="sr-only">Escolha o estilo de layout</legend>
+                                <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                                    
+                                    <!-- Opção 1: Lista (Restaurante) -->
+                                    <label for="layout-lista" class="flex items-center p-3 w-full rounded-md border-2 border-gray-300 dark:border-gray-700 cursor-pointer has-[:checked]:border-primary-500 has-[:checked]:ring-2 has-[:checked]:ring-primary-500">
+                                        <input type="radio" id="layout-lista" name="product-layout-style" value="lista" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                        <div class="ml-3 text-sm">
+                                            <span class="font-medium text-gray-900 dark:text-gray-100">Lista (Menu)</span>
+                                            <p class="text-gray-500 dark:text-gray-400 text-xs">Ideal para menus (fotos pequenas).</p>
+                                        </div>
+                                    </label>
+                                    
+                                    <!-- Opção 2: Grelha (Loja) -->
+                                    <label for="layout-grid" class="flex items-center p-3 w-full rounded-md border-2 border-gray-300 dark:border-gray-700 cursor-pointer has-[:checked]:border-primary-500 has-[:checked]:ring-2 has-[:checked]:ring-primary-500">
+                                        <input type="radio" id="layout-grid" name="product-layout-style" value="grid" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                        <div class="ml-3 text-sm">
+                                            <span class="font-medium text-gray-900 dark:text-gray-100">Grelha (Loja)</span>
+                                            <p class="text-gray-500 dark:text-gray-400 text-xs">Ideal para roupas/produtos (fotos grandes).</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- ========================================================== -->
+                        
+                    </div>
+                    <div class="card-footer space-y-4">
+                        <div>
+                            <label class="form-label">Abas Visíveis na Minipágina</label>
+                            <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div id="show-schedule-container" class="flex items-center"><input id="show-schedule" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="show-schedule" class="ml-2 form-label !font-normal" id="show-schedule-label">Agendar</label></div>
+                                <div id="show-products-container" class="flex items-center"><input id="show-products" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="show-products" class="ml-2 form-label !font-normal" id="show-products-label">Produtos</label></div>
+                                <div class="flex items-center"><input id="show-bookings" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="show-bookings" class="ml-2 form-label !font-normal">Meus Tickets</label></div>
+                                <div class="flex items-center"><input id="show-info" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="show-info" class="ml-2 form-label !font-normal">Informações</label></div>
+                            </div>
+                        </div>
+                        
+                        <!-- --- NOVO BLOCO: Opções de Delivery (O JS vai esconder/mostrar) --- -->
+                        <div id="delivery-options-container" class="hidden pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <label class="form-label">Opções de Delivery</label>
+                            <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div class="flex items-center"><input id="allow-delivery" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="allow-delivery" class="ml-2 form-label !font-normal">Permitir Delivery</label></div>
+                                <div class="flex items-center"><input id="allow-takeaway" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"><label for="allow-takeaway" class="ml-2 form-label !font-normal">Permitir Takeaway</label></div>
+                            </div>
+                        </div>
+                        <!-- --- FIM DO NOVO BLOCO --- -->
+                    </div>
+                </div>
+                
+                <!-- Card Contactos & Redes Sociais -->
+                <div class="card">
+                    <div class="card-header"><h3 class="text-lg font-semibold">Contactos & Redes Sociais</h3></div>
+                    <div class="card-content grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label for="shop-phone" class="form-label">Nº de Telefone</label><input type="tel" id="shop-phone" class="form-input"></div>
+                        <div><label for="shop-whatsapp" class="form-label">Nº WhatsApp (ex: 25884...)</label><input type="tel" id="shop-whatsapp" class="form-input"></div>
+                        <div><label for="shop-address" class="form-label">Morada</label><input type="text" id="shop-address" class="form-input"></div>
+                        <div><label for="shop-instagram" class="form-label">Instagram (username)</label><input type="text" id="shop-instagram" class="form-input"></div>
+                        <div><label for="shop-facebook" class="form-label">Facebook (username)</label><input type="text" id="shop-facebook" class="form-input"></div>
+                    </div>
+                </div>
+                
+                <!-- ========================================================== -->
+                <!-- CARD: PAGAMENTOS & PAYOUTS (Original) -->
+                <!-- ========================================================== -->
+                <div class="card">
+                    <div class="card-header"><h3 class="text-lg font-semibold">Pagamentos & Payouts</h3></div>
+                    <div class="card-content space-y-4">
+                        <div class="form-group">
+                            <label class="form-label">Opções de Pagamento</label>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Quais métodos os seus clientes podem escolher?</p>
+                            <div class="space-y-2 mt-2">
+                                <div class="flex items-center">
+                                    <input id="allow-payment-local" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                    <label for="allow-payment-local" class="ml-2 form-label !font-normal">Permitir Pagamento no Local</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="allow-payment-online" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                    <label for="allow-payment-online" class="ml-2 form-label !font-normal">Permitir Pagamento Online (PaySuite)</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="border-gray-200 dark:border-gray-700"/>
+
+                        <div class="form-group">
+                            <label class="form-label">Configuração de Payout</label>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Como você quer receber o seu dinheiro dos pagamentos online?</p>
+                            
+                            <div class="mt-2">
+                                <label for="payout-method" class="form-label">Método de Payout</label>
+                                <select id="payout-method" class="form-input">
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="emola">E-Mola</option>
+                                    <option value="bank">Transferência Bancária</option>
+                                </select>
+                            </div>
+                            <div class="mt-4">
+                                <label for="payout-number" class="form-label">Número (M-Pesa / E-Mola)</label>
+                                <input type="tel" id="payout-number" class="form-input" placeholder="ex: 841234567">
+                            </div>
+                            <div class="mt-4">
+                                <label for="payout-bank-details" class="form-label">Detalhes Bancários (NIB, Banco, etc.)</label>
+                                <textarea id="payout-bank-details" rows="3" class="form-input" placeholder="NIB: 000...&#10;Banco: ..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ========================================================== -->
+                <!-- FIM DO CARD DE PAGAMENTOS -->
+                <!-- ========================================================== -->
+
+            </form>
+        </main>
+        
+        <!-- Página: Agenda -->
+        <main id="page-agenda" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-7xl space-y-6">
+                <!-- Abas da Agenda -->
+                <div class="border-b border-gray-200 dark:border-gray-800">
+                    <nav class="-mb-px flex space-x-8 overflow-x-auto whitespace-nowrap" aria-label="Tabs">
+                        <button class="agenda-tab active" data-status="Pendente">
+                            <svg class="h-5 w-5"><use href="#icon-bell"></use></svg> <span class="agenda-tab-text">Pendentes</span>
+                        </button>
+                        <button class="agenda-tab" data-status="Aguardando Pagamento">
+                            <svg class="h-5 w-5"><use href="#icon-credit-card"></use></svg> A Pagamento
+                        </button>
+                        <button class="agenda-tab" data-status="Confirmado">
+                            <svg class="h-5 w-5"><use href="#icon-check"></use></svg> <span class="agenda-tab-text">Confirmadas</span>
+                        </button>
+                        <button class="agenda-tab" data-status="Cancelado">
+                            <svg class="h-5 w-5"><use href="#icon-x"></use></svg> <span class="agenda-tab-text">Canceladas</span>
+                        </button>
+                    </nav>
+                </div>
+                
+                <!-- Lista da Agenda -->
+                <div class="card">
+                    <div class="card-header"><h3 id="agenda-list-title" class="text-lg font-semibold">Marcações Pendentes</h3></div>
+                    <ul id="agenda-list" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <!-- Conteúdo carregado por JS -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 
+        ============================================================
+         Página: Produtos (MODIFICADA)
+         Inclui a lógica de Depósito/Pagamento Integral
+        ============================================================
+        -->
+        <main id="page-produtos" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-4xl space-y-6">
+                <!-- Cabeçalho Produtos -->
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-semibold">Os Seus Produtos (Venda)</h2>
+                    <button id="add-product-button" class="btn btn-primary">
+                        <svg class="mr-2 h-5 w-5 -ml-1"><use href="#icon-plus"></use></svg>
+                        Adicionar Produto
+                    </button>
+                </div>
+                
+                <!-- Formulário de Produto (MODIFICADO) -->
+                <form id="product-form" class="hidden card" onsubmit="return false;">
+                    <div class="card-header"><h3 id="product-form-title" class="text-lg font-semibold">Adicionar Novo Produto</h3></div>
+                    <div class="card-content space-y-4">
+                        <input type="hidden" id="product-id">
+                        
+                        <!-- (Futuro: Adicionar seletor Simples/Variável aqui) -->
+
+                        <div>
+                            <label for="product-name" class="form-label">Nome do Produto</label>
+                            <input type="text" id="product-name" class="form-input">
+                        </div>
+                        <div>
+                            <label for="product-image-url" class="form-label">URL da Imagem</label>
+                            <input type="text" id="product-image-url" class="form-input" placeholder="https://... ou deixe em branco para upload">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="product-price" class="form-label">Preço TOTAL (MZN)</label>
+                                <input type="number" id="product-price" class="form-input" placeholder="1000.00">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="product-description" class="form-label">Descrição</label>
+                            <textarea id="product-description" rows="3" class="form-input"></textarea>
+                        </div>
+                        
+                        <!-- --- INÍCIO DO NOVO BLOCO (Depósito) --- -->
+                        <hr class="border-gray-200 dark:border-gray-700"/>
+                        <div>
+                            <label for="product-payment-mode" class="form-label">Método de Confirmação Online</label>
+                            <select id="product-payment-mode" class="form-input">
+                                <option value="integral">Exigir Pagamento Integral (100%)</option>
+                                <option value="deposito">Exigir Depósito / Sinal</option>
+                            </select>
+                        </div>
+                        <div id="product-deposit-container" class="hidden"> <!-- Começa escondido -->
+                            <label for="product-deposit-value" class="form-label">Valor do Depósito (MZN)</label>
+                            <input type="number" id="product-deposit-value" class="form-input" placeholder="100.00">
+                        </div>
+                        <!-- --- FIM DO NOVO BLOCO --- -->
+
+                    </div>
+                    <div class="card-footer flex justify-end space-x-3">
+                        <button id="cancel-product-button" type="button" class="btn btn-secondary">Cancelar</button>
+                        <button id="save-product-button" type="button" class="btn btn-primary">Guardar Produto</button>
+                    </div>
+                </form>
+
+                <!-- Lista de Produtos -->
+                <div class="card">
+                    <ul id="product-list" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <!-- Conteúdo carregado por JS -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 
+        ============================================================
+         Página: Serviços (MODIFICADA)
+         Inclui a lógica de Depósito/Pagamento Integral
+        ============================================================
+        -->
+        <main id="page-servicos" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-4xl space-y-6">
+                <!-- Cabeçalho Serviços -->
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-semibold">Os Seus Serviços (Agendamento)</h2>
+                    <button id="add-service-button" class="btn btn-primary">
+                        <svg class="mr-2 h-5 w-5 -ml-1"><use href="#icon-plus"></use></svg>
+                        Adicionar Serviço
+                    </button>
+                </div>
+                
+                <!-- Formulário de Serviço (MODIFICADO) -->
+                <form id="service-form" class="hidden card" onsubmit="return false;">
+                    <div class="card-header"><h3 id="service-form-title" class="text-lg font-semibold">Adicionar Novo Serviço</h3></div>
+                    <div class="card-content space-y-4">
+                        <input type="hidden" id="service-id">
+                        <div>
+                            <label for="service-name" class="form-label">Nome do Serviço</label>
+                            <input type="text" id="service-name" class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="service-price" class="form-label">Preço TOTAL (MZN)</label>
+                                <input type="number" id="service-price" class="form-input" placeholder="500.00">
+                            </div>
+                            <div>
+                                <label for="service-duration" class="form-label">Duração (em minutos)</label>
+                                <input type="number" id="service-duration" class="form-input" placeholder="ex: 30">
+                            </div>
+                        </div>
+                        
+                        <!-- --- INÍCIO DO NOVO BLOCO (Depósito) --- -->
+                        <hr class="border-gray-200 dark:border-gray-700"/>
+                        <div>
+                            <label for="service-payment-mode" class="form-label">Método de Confirmação Online</label>
+                            <select id="service-payment-mode" class="form-input">
+                                <option value="integral">Exigir Pagamento Integral (100%)</option>
+                                <option value="deposito">Exigir Depósito / Sinal</option>
+                            </select>
+                        </div>
+                        <div id="service-deposit-container" class="hidden"> <!-- Começa escondido -->
+                            <label for="service-deposit-value" class="form-label">Valor do Depósito (MZN)</label>
+                            <input type="number" id="service-deposit-value" class="form-input" placeholder="50.00">
+                        </div>
+                        <!-- --- FIM DO NOVO BLOCO --- -->
+
+                    </div>
+                    <div class="card-footer flex justify-end space-x-3">
+                        <button id="cancel-service-button" type="button" class="btn btn-secondary">Cancelar</button>
+                        <button id="save-service-button" type="button" class="btn btn-primary">Guardar Serviço</button>
+                    </div>
+                </form>
+
+                <!-- Lista de Serviços -->
+                <div class="card">
+                    <ul id="service-list" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <!-- Conteúdo carregado por JS -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Página: Horário -->
+        <main id="page-horario" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <form id="schedule-form" class="mx-auto max-w-2xl space-y-6" onsubmit="return false;">
+                <div class="card">
+                    <div class="card-header"><h3 class="text-lg font-semibold" id="horario-title">Horário de Funcionamento</h3></div>
+                    <div id="schedule-container" class="card-content divide-y divide-gray-200 dark:divide-gray-800">
+                        
+                        <!-- Dia: Segunda-feira -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-0" type="checkbox" data-day="0" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-0" class="ml-3 text-sm font-medium">Segunda-feira</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="0" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="0" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Terça-feira -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-1" type="checkbox" data-day="1" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-1" class="ml-3 text-sm font-medium">Terça-feira</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="1" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="1" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Quarta-feira -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-2" type="checkbox" data-day="2" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-2" class="ml-3 text-sm font-medium">Quarta-feira</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="2" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="2" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Quinta-feira -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-3" type="checkbox" data-day="3" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-3" class="ml-3 text-sm font-medium">Quinta-feira</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="3" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="3" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Sexta-feira -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-4" type="checkbox" data-day="4" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-4" class="ml-3 text-sm font-medium">Sexta-feira</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="4" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="4" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Sábado -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-5" type="checkbox" data-day="5" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-5" class="ml-3 text-sm font-medium">Sábado</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="5" data-type="inicio" class="form-input !mt-0 w-28" value="10:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="5" data-type="fim" class="form-input !mt-0 w-28" value="16:00">
+                            </div>
+                        </div>
+                        <!-- Dia: Domingo -->
+                        <div class="day-schedule flex flex-col sm:flex-row items-start sm:items-center justify-between py-4">
+                            <div class="flex items-center mb-2 sm:mb-0">
+                                <input id="chk-6" type="checkbox" data-day="6" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                <label for="chk-6" class="ml-3 text-sm font-medium">Domingo</label>
+                            </div>
+                            <div class="flex items-center space-x-2 time-inputs">
+                                <span class="text-sm text-gray-500">De:</span>
+                                <input type="time" data-day="6" data-type="inicio" class="form-input !mt-0 w-28" value="09:00">
+                                <span class="text-sm text-gray-500">Até:</span>
+                                <input type="time" data-day="6" data-type="fim" class="form-input !mt-0 w-28" value="18:00">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </main>
+
+        <!-- Página: Promover -->
+        <main id="page-promover" class="page-content hidden flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-4xl space-y-6">
+                <!-- Cabeçalho Promover -->
+                <div class="card text-center">
+                    <div class="card-content">
+                        <h2 class="text-2xl font-semibold">Promova a Sua Página!</h2>
+                        <p class="mt-2 text-gray-500 dark:text-gray-400">Use este QR Code e link para partilhar a sua minipágina de marcações.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Card Link Público -->
+                    <div class="card">
+                        <div class="card-header"><h3 class="text-lg font-semibold">O Seu Link Público</h3></div>
+                        <div class="card-content">
+                            <label for="public-link-input" class="form-label">Link da Minipágina</label>
+                            <div class="mt-1 flex">
+                                <input id="public-link-input" type="text" readonly class="form-input !rounded-r-none" value="A carregar...">
+                                <button id="copy-link-button" class="btn btn-primary !rounded-l-none -ml-px">
+                                    <svg class="h-5 w-5"><use href="#icon-copy"></use></svg>
+                                </button>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Partilhe no Instagram, WhatsApp, ou Facebook.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Card QR Code -->
+                    <div class="card">
+                        <div class="card-header"><h3 class="text-lg font-semibold">O Seu QR Code</h3></div>
+                        <div class="card-content flex flex-col items-center">
+                            <div class="h-56 w-56 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                <img id="qr-code-main" src="" alt="QR Code" class="h-52 w-52 object-contain">
+                            </div>
+                            <button id="download-qr-button" class="btn btn-secondary mt-4">
+                                <svg class="mr-2 h-5 w-5 -ml-1"><use href="#icon-download"></use></svg>
+                                Download QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+    </div> 
+    
+    <!-- Notificação Toast -->
+    <div id="notification-toast" class="fixed top-5 right-5 z-50 block max-w-sm rounded-lg shadow-lg transform transition-all duration-300 ease-out opacity-0 translate-x-full" role="alert">
+        <div class="flex items-center p-4">
+            <div id="toast-icon" class="mr-3 text-xl"></div>
+            <div class="text-sm font-medium" id="toast-message"></div>
+            <button id="toast-close-button" type="button" class="ml-4 -mr-2 -my-2 btn-icon !text-gray-800 dark:!text-gray-200">
+                <svg class="h-5 w-5"><use href="#icon-x"></use></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação (Apagar) -->
+    <div id="delete-modal" class="fixed inset-0 z-40 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div id="delete-modal-overlay" class="fixed inset-0 bg-gray-500/75 dark:bg-black/80 backdrop-blur-sm transition-opacity"></div>
+        <div class="fixed inset-0 z-50 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+                <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all dark:bg-gray-900">
+                    <div class="flex items-start">
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true"><use href="#icon-alert-triangle"></use></svg>
+                        </div>
+                        <div class="ml-4 mt-0 text-left">
+                            <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white" id="delete-modal-title">Apagar Item</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400" id="delete-modal-text">Tem a certeza que quer apagar este item? Esta ação não pode ser revertida.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                        <button id="delete-modal-confirm-button" type="button" class="btn btn-danger w-full sm:ml-3 sm:w-auto">
+                            Apagar
+                        </button>
+                        <button id="delete-modal-cancel-button" type="button" class="btn btn-secondary mt-3 w-full sm:mt-0 sm:w-auto">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================== -->
+    <!-- SCRIPT PRINCIPAL DO DASHBOARD (ATUALIZADO) -->
+    <!-- ========================================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Variáveis Globais ---
+            let shopDataCache = {}; 
+            let toastTimer;
+            let deleteCallback = () => {}; // Função a ser chamada ao confirmar apagar
+
+            // --- Constantes de UI ---
+            const SPINNER_HTML = `
+                <div class="flex justify-center items-center p-10">
+                    <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
+                </div>`;
+            
+            const EMPTY_STATE_HTML = (message, icon = '#icon-package-search') => `
+                <div class="text-center p-10">
+                    <svg class="mx-auto h-12 w-12 text-gray-400"><use href="${icon}"></use></svg>
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Nenhum item</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">${message}</p>
+                </div>`;
+
+            // --- Elementos do DOM (UI Geral) ---
+            const sidebar = document.getElementById('sidebar');
+            const openMenuButton = document.getElementById('open-menu');
+            const closeMenuButton = document.getElementById('close-menu');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const themeToggler = document.getElementById('theme-toggler');
+            const themeIconSun = document.getElementById('theme-icon-sun');
+            const themeIconMoon = document.getElementById('theme-icon-moon');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+            const pageTitle = document.getElementById('page-title');
+            const saveButton = document.getElementById('save-button');
+            const userProfileImg = document.getElementById('user-profile-img');
+
+            // --- Elementos do DOM (Toast) ---
+            const notificationToast = document.getElementById('notification-toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMessage = document.getElementById('toast-message');
+            const toastCloseButton = document.getElementById('toast-close-button');
+
+            // --- Elementos do DOM (Modal) ---
+            const deleteModal = document.getElementById('delete-modal');
+            const deleteModalOverlay = document.getElementById('delete-modal-overlay');
+            const deleteModalTitle = document.getElementById('delete-modal-title');
+            const deleteModalText = document.getElementById('delete-modal-text');
+            const deleteModalConfirmButton = document.getElementById('delete-modal-confirm-button');
+            const deleteModalCancelButton = document.getElementById('delete-modal-cancel-button');
+
+            // --- Elementos do DOM (Páginas) ---
+            // Métricas
+            const metricRevenue = document.getElementById('metric-revenue');
+            const metricBookings = document.getElementById('metric-bookings');
+            const metricPending = document.getElementById('metric-pending');
+            const metricVisitors = document.getElementById('metric-visitors');
+            const listaPendentes = document.getElementById('lista-pendentes');
+            // (Novos IDs de Métricas)
+            const metricBookingsLabel = document.getElementById('metric-bookings-label');
+            const metricPendingLabel = document.getElementById('metric-pending-label');
+            const listaPendentesLabel = document.getElementById('lista-pendentes-label');
+            
+            // Personalizar
+            const formPersonalizar = document.getElementById('form-personalizar');
+            const imgPreviewProfile = document.getElementById('img-preview-profile');
+            const inputUploadProfile = document.getElementById('input-upload-profile');
+            const inputProfileUrl = document.getElementById('input-profile-url');
+            const imgPreviewAnnouncement = document.getElementById('img-preview-announcement');
+            const inputUploadAnnouncement = document.getElementById('input-upload-announcement');
+            const inputAnnouncementUrl = document.getElementById('input-announcement-url');
+            // (Novos IDs de Personalizar)
+            const businessModelDisplay = document.getElementById('shop-business-model-display');
+            const productLayoutSelectorContainer = document.getElementById('product-layout-selector-container');
+            const deliveryOptionsContainer = document.getElementById('delivery-options-container');
+            const showScheduleContainer = document.getElementById('show-schedule-container');
+            const showProductsContainer = document.getElementById('show-products-container');
+            const showScheduleLabel = document.getElementById('show-schedule-label');
+            const showProductsLabel = document.getElementById('show-products-label');
+            
+            // Horário
+            const scheduleContainer = document.getElementById('schedule-container');
+            const horarioTitle = document.getElementById('horario-title');
+
+            // Agenda (Tickets)
+            const agendaTabs = document.querySelectorAll('.agenda-tab');
+            const agendaList = document.getElementById('agenda-list');
+            const agendaListTitle = document.getElementById('agenda-list-title');
+            const agendaTabTexts = document.querySelectorAll('.agenda-tab-text'); // (Novo)
+
+            // Produtos
+            const productPage = document.getElementById('page-produtos');
+            const productList = document.getElementById('product-list');
+            const productForm = document.getElementById('product-form');
+            const productFormTitle = document.getElementById('product-form-title');
+            const productIdInput = document.getElementById('product-id');
+            const addProductButton = document.getElementById('add-product-button');
+            const saveProductButton = document.getElementById('save-product-button');
+            const cancelProductButton = document.getElementById('cancel-product-button');
+            // (Novos IDs de Produtos)
+            const productPaymentMode = document.getElementById('product-payment-mode');
+            const productDepositContainer = document.getElementById('product-deposit-container');
+            const productDepositValue = document.getElementById('product-deposit-value');
+
+            // Serviços
+            const servicePage = document.getElementById('page-servicos');
+            const serviceList = document.getElementById('service-list');
+            const serviceForm = document.getElementById('service-form');
+            const serviceFormTitle = document.getElementById('service-form-title');
+            const serviceIdInput = document.getElementById('service-id');
+            const addServiceButton = document.getElementById('add-service-button');
+            const saveServiceButton = document.getElementById('save-service-button');
+            const cancelServiceButton = document.getElementById('cancel-service-button');
+            // (Novos IDs de Serviços)
+            const servicePaymentMode = document.getElementById('service-payment-mode');
+            const serviceDepositContainer = document.getElementById('service-deposit-container');
+            const serviceDepositValue = document.getElementById('service-deposit-value');
+
+            // Promover
+            const qrCodeMain = document.getElementById('qr-code-main');
+            const publicLinkInput = document.getElementById('public-link-input');
+            const copyLinkButton = document.getElementById('copy-link-button');
+            const downloadQrButton = document.getElementById('download-qr-button');
+            
+            // --- 1. LÓGICA DE UI E NAVEGAÇÃO ---
+
+            /**
+             * Mostra uma notificação (toast) com animação
+             * @param {string} message - A mensagem a exibir
+             * @param {'success'|'error'|'info'} type - O tipo de toast
+             */
+            function showToast(message, type = 'success') {
+                clearTimeout(toastTimer); // Limpa qualquer timer de desaparecimento anterior
+                
+                // Redefine as classes de estado (mantém as de transição/posição)
+                notificationToast.className = "fixed top-5 right-5 z-50 block max-w-sm rounded-lg shadow-lg transform transition-all duration-300 ease-out opacity-0 translate-x-full"
+                toastIcon.className = "mr-3 text-xl";
+
+                // Adiciona a cor correta
+                if (type === 'success') {
+                    notificationToast.classList.add('bg-green-500', 'text-white');
+                    toastIcon.innerHTML = '✔'; 
+                } else if (type === 'error') {
+                    notificationToast.classList.add('bg-red-500', 'text-white');
+                    toastIcon.innerHTML = '✖'; 
+                } else {
+                    notificationToast.classList.add('bg-blue-500', 'text-white');
+                    toastIcon.innerHTML = 'ℹ'; 
+                }
+                
+                toastMessage.textContent = message;
+
+                // Força a animação de entrada
+                // Usamos requestAnimationFrame para garantir que o browser aplica a transição
+                requestAnimationFrame(() => {
+                    notificationToast.classList.remove('opacity-0', 'translate-x-full');
+                    notificationToast.classList.add('opacity-100', 'translate-x-0');
+                });
+
+                // Agenda a animação de saída
+                toastTimer = setTimeout(() => {
+                    notificationToast.classList.remove('opacity-100', 'translate-x-0');
+                    notificationToast.classList.add('opacity-0', 'translate-x-full');
+                }, 4000); // Fica visível por 4 segundos
+            }
+            toastCloseButton.addEventListener('click', () => {
+                clearTimeout(toastTimer);
+                // Inicia a animação de saída
+                notificationToast.classList.remove('opacity-100', 'translate-x-0');
+                notificationToast.classList.add('opacity-0', 'translate-x-full');
+            });
+
+            /**
+             * Mostra o Modal de Confirmação para Apagar
+             * @param {string} title - Título do modal
+             * @param {string} text - Texto de confirmação
+             * @param {function} onConfirm - Callback a ser executado se o user confirmar
+             */
+            function showDeleteModal(title, text, onConfirm) {
+                deleteModalTitle.textContent = title;
+                deleteModalText.textContent = text;
+                deleteCallback = onConfirm; // Armazena a função de apagar
+                deleteModal.classList.remove('hidden');
+            }
+            
+            /**
+             * Esconde o Modal
+             */
+            function hideDeleteModal() {
+                deleteModal.classList.add('hidden');
+                deleteCallback = () => {};
+            }
+            // Eventos do Modal
+            deleteModalCancelButton.addEventListener('click', hideDeleteModal);
+            deleteModalOverlay.addEventListener('click', hideDeleteModal);
+            deleteModalConfirmButton.addEventListener('click', () => {
+                if (typeof deleteCallback === 'function') {
+                    deleteCallback(); // Executa a ação de apagar
+                }
+                hideDeleteModal();
+            });
+
+
+            /**
+             * Alterna a visibilidade das páginas
+             * @param {string} pageId - O ID da <main> a ser mostrada
+             */
+            function showPage(pageId) {
+                // Esconde todas as páginas
+                pages.forEach(page => page.classList.add('hidden'));
+                // Mostra a página alvo
+                document.getElementById(pageId)?.classList.remove('hidden');
+                
+                let targetTitle = 'Dashboard';
+                // Atualiza o link ativo na sidebar
+                navLinks.forEach(link => {
+                    const isActive = link.dataset.page === pageId;
+                    link.classList.toggle('active', isActive);
+                    if (isActive) {
+                        // Pega o texto do span interno, se existir, senão o texto do link
+                        const titleEl = link.querySelector('span');
+                        targetTitle = titleEl ? titleEl.innerText : link.innerText;
+                    }
+                });
+                
+                // Atualiza o título no cabeçalho
+                pageTitle.textContent = targetTitle;
+
+                // Mostra o botão "Guardar" apenas nas páginas de formulário
+                const showSave = ['page-personalizar', 'page-horario'].includes(pageId);
+                saveButton.classList.toggle('hidden', !showSave);
+                saveButton.classList.toggle('inline-flex', showSave);
+                
+                // Carrega os dados específicos da página (se necessário)
+                switch (pageId) {
+                    case 'page-metricas':
+                        loadMetrics();
+                        break;
+                    case 'page-agenda':
+                        // Carrega a tab "Pendente" por defeito
+                        loadBookings('Pendente');
+                        break;
+                    case 'page-produtos':
+                        loadProducts();
+                        break;
+                    case 'page-servicos':
+                        loadServices();
+                        break;
+                }
+            }
+
+            // --- Lógica do Menu Mobile ---
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+            openMenuButton.addEventListener('click', openSidebar);
+            closeMenuButton.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            
+            // --- Lógica do Dark Mode ---
+            function setDarkMode(isDark) {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    themeIconSun.classList.add('hidden');
+                    themeIconMoon.classList.remove('hidden');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeIconSun.classList.remove('hidden');
+                    themeIconMoon.classList.add('hidden');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            themeToggler.addEventListener('click', () => {
+                setDarkMode(!document.documentElement.classList.contains('dark'));
+            });
+            // Inicializa o tema ao carregar
+            if (localStorage.getItem('theme') === 'dark' || 
+               (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                setDarkMode(true);
+            } else {
+                setDarkMode(false);
+            }
+
+            // --- 2. LÓGICA DE DADOS (API) ---
+
+            /**
+             * Função principal: Carrega todos os dados do dashboard
+             */
+            async function loadInitialData() {
+                try {
+                    // Este endpoint retorna todos os dados de configuração
+                    const response = await fetch('/api/dashboard/details');
+                    if (!response.ok) throw new Error('Não foi possível carregar os dados da loja.');
+                    
+                    shopDataCache = await response.json();
+                    
+                    // ==========================================================
+                    // ATUALIZAÇÃO: Configura a UI com base no modelo de negócio
+                    // ==========================================================
+                    setupUIMode(shopDataCache.profile.business_model);
+                    
+                    // Popular as diferentes secções com os dados
+                    populatePagePersonalizar(shopDataCache);
+                    populatePageHorario(shopDataCache.schedules);
+                    populatePagePromover(shopDataCache.profile.slug);
+                    
+                    // Atualiza a foto de perfil na sidebar
+                    if (shopDataCache.profile.profile_image_url) {
+                        userProfileImg.src = shopDataCache.profile.profile_image_url;
+                    }
+
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            }
+            
+            /**
+             * ==========================================================
+             * NOVA FUNÇÃO: setupUIMode
+             * Esconde/mostra menus e altera etiquetas
+             * ==========================================================
+             */
+            function setupUIMode(business_model) {
+                const model = business_model || 'agendamento'; // Padrão
+                
+                const navServicos = document.getElementById('nav-servicos');
+                const navProdutos = document.getElementById('nav-produtos');
+                const navAgendaText = document.getElementById('nav-agenda-text');
+                const navHorarioText = document.getElementById('nav-horario-text');
+
+                if (model === 'delivery') {
+                    // --- MODO DELIVERY ---
+                    navServicos.style.display = 'none';
+                    navProdutos.style.display = 'block';
+                    navAgendaText.textContent = 'Encomendas';
+                    navHorarioText.textContent = 'Horário (Entregas)';
+                    
+                    // Métricas
+                    metricBookingsLabel.textContent = 'Total de Encomendas';
+                    metricPendingLabel.textContent = 'Novas Encomendas';
+                    listaPendentesLabel.textContent = 'Encomendas Pendentes Recentes';
+                    
+                    // Agenda (Lista de Encomendas)
+                    agendaListTitle.textContent = 'Lista de Encomendas'; // Título default
+                    agendaTabTexts[0].textContent = 'Pendentes'; // (Pendente de Preparação)
+                    agendaTabTexts[1].textContent = 'Confirmadas'; // (Pode ser "Em Preparação")
+                    agendaTabTexts[2].textContent = 'Canceladas';
+                    
+                    // Personalizar
+                    deliveryOptionsContainer.classList.remove('hidden');
+                    productLayoutSelectorContainer.classList.remove('hidden');
+                    showScheduleContainer.classList.add('hidden'); // Esconde aba "Agendar"
+                    showProductsContainer.classList.remove('hidden');
+                    showProductsLabel.textContent = 'Menu/Catálogo';
+                    
+                    // Página Horário
+                    horarioTitle.textContent = 'Horário de Entregas';
+
+                } else {
+                    // --- MODO AGENDAMENTO ---
+                    navServicos.style.display = 'block';
+                    navProdutos.style.display = 'none'; // Esconde produtos para Agendamento
+                    navAgendaText.textContent = 'Agenda (Tickets)';
+                    navHorarioText.textContent = 'Horário';
+                    
+                    // Métricas
+                    metricBookingsLabel.textContent = 'Total de Marcações';
+                    metricPendingLabel.textContent = 'Novas Pendentes';
+                    listaPendentesLabel.textContent = 'Marcações Pendentes Recentes';
+                    
+                    // Agenda
+                    agendaListTitle.textContent = 'Lista de Marcações'; // Título default
+                    agendaTabTexts[0].textContent = 'Pendentes';
+                    agendaTabTexts[1].textContent = 'Confirmadas';
+                    agendaTabTexts[2].textContent = 'Canceladas';
+                    
+                    // Personalizar
+                    deliveryOptionsContainer.classList.add('hidden');
+                    productLayoutSelectorContainer.classList.add('hidden'); // Esconde layout (só há serviços)
+                    showScheduleContainer.classList.remove('hidden');
+                    showProductsContainer.classList.add('hidden'); // Esconde aba "Produtos"
+                    showScheduleLabel.textContent = 'Agendar';
+                    
+                    // Página Horário
+                    horarioTitle.textContent = 'Horário de Funcionamento';
+                }
+                
+                // Exibe o nome do modelo no campo read-only
+                businessModelDisplay.value = model.charAt(0).toUpperCase() + model.slice(1);
+            }
+
+            /**
+             * Preenche a página "Personalizar"
+             */
+            function populatePagePersonalizar(data) {
+                const p = data.profile || {};
+                const s = data.social || {};
+                const c = data.customization || {};
+                const pay = data.payment || {}; 
+
+                // Perfil
+                document.getElementById('shop-name').value = p.nome_loja || '';
+                document.getElementById('shop-url').value = p.slug || '';
+                document.getElementById('shop-description').value = p.descricao || '';
+                
+                // Imagens
+                imgPreviewProfile.src = p.profile_image_url || 'https://placehold.co/256x256/e0e0e0/757575?text=Perfil';
+                inputProfileUrl.value = p.profile_image_url || '';
+                imgPreviewAnnouncement.src = p.announcement_url || 'https://placehold.co/600x200/e0e0e0/757575?text=Banner+KDS';
+                inputAnnouncementUrl.value = p.announcement_url || '';
+
+                // Contactos
+                document.getElementById('shop-phone').value = p.telefone || '';
+                document.getElementById('shop-address').value = p.morada || '';
+                document.getElementById('shop-whatsapp').value = s.whatsapp || '';
+                document.getElementById('shop-instagram').value = s.instagram || '';
+                document.getElementById('shop-facebook').value = s.facebook || '';
+                
+                // Cores e Abas
+                document.getElementById('shop-theme-color').value = c.theme_color || '#3b82f6';
+                document.getElementById('shop-layout-style').value = c.layout_style || 'default';
+                
+                // --- ATUALIZAÇÃO (Layout Lista/Grelha) ---
+                const layout = c.product_layout_style || 'lista';
+                if(document.querySelector(`input[name="product-layout-style"][value="${layout}"]`)) {
+                    document.querySelector(`input[name="product-layout-style"][value="${layout}"]`).checked = true;
+                }
+                
+                // --- ATUALIZAÇÃO (Opções Delivery) ---
+                document.getElementById('allow-delivery').checked = c.allow_delivery ?? true;
+                document.getElementById('allow-takeaway').checked = c.allow_takeaway ?? true;
+
+                document.getElementById('show-schedule').checked = c.show_schedule ?? true;
+                document.getElementById('show-products').checked = c.show_products ?? true;
+                document.getElementById('show-bookings').checked = c.show_bookings ?? true;
+                document.getElementById('show-info').checked = c.show_info ?? true;
+                
+                // Preenche os campos de Pagamento
+                document.getElementById('allow-payment-local').checked = pay.allow_payment_local ?? true;
+                document.getElementById('allow-payment-online').checked = pay.allow_payment_online ?? true;
+                document.getElementById('payout-method').value = pay.payout_method || 'mpesa';
+                document.getElementById('payout-number').value = pay.payout_number || '';
+                document.getElementById('payout-bank-details').value = pay.payout_bank_details || '';
+            }
+
+            /**
+             * Preenche a página "Horário" com os dados
+             */
+            function populatePageHorario(horarios) {
+                if (!horarios || horarios.length === 0) {
+                    console.warn("Nenhum dado de horário recebido.");
+                    return;
+                }
+                
+                scheduleContainer.querySelectorAll('.day-schedule').forEach((dayEl, index) => {
+                    // Garante que existe um horário para o dia, ou usa um default
+                    const horarioDia = horarios[index] || { inicio: '09:00', fim: '18:00', aberto: index < 5 };
+                    
+                    const chk = dayEl.querySelector('input[type="checkbox"]');
+                    const timeInputs = dayEl.querySelector('.time-inputs');
+                    
+                    chk.checked = horarioDia.aberto;
+                    dayEl.querySelector('input[data-type="inicio"]').value = horarioDia.inicio;
+                    dayEl.querySelector('input[data-type="fim"]').value = horarioDia.fim;
+                    
+                    // Atualiza o estado visual
+                    timeInputs.classList.toggle('opacity-50', !horarioDia.aberto);
+                    timeInputs.querySelectorAll('input[type="time"]').forEach(i => i.disabled = !horarioDia.aberto);
+                });
+            }
+            
+            /**
+             * Preenche a página "Promover" (Link e QR Code)
+             */
+            function populatePagePromover(slug) {
+                if (!slug || !publicLinkInput) return;
+                const url = `${window.location.origin}/loja/${slug}`;
+                // API pública para gerar QR Codes
+                const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+                
+                publicLinkInput.value = url;
+                if(qrCodeMain) qrCodeMain.src = qrApiUrl;
+                
+                // Prepara o botão de download
+                downloadQrButton.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = qrApiUrl;
+                    a.download = `qr-code-${slug}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+            }
+
+            /**
+             * Carrega as Métricas
+             */
+            async function loadMetrics() {
+                try {
+                    const response = await fetch('/api/dashboard/metrics');
+                    if (!response.ok) throw new Error('Erro ao carregar métricas.');
+                    const data = await response.json();
+                    
+                    metricRevenue.textContent = `${data.total_revenue.toFixed(2)} MZN`;
+                    metricBookings.textContent = data.total_bookings;
+                    metricPending.textContent = data.pending_count;
+                    metricVisitors.textContent = data.visitor_count;
+                    
+                    // Carrega a lista de pendentes na Visão Geral (limitada a 5)
+                    loadBookings('Pendente', listaPendentes, 5);
+                } catch (error) {
+                    console.error('Erro ao carregar métricas:', error);
+                    showToast(error.message, 'error');
+                }
+            }
+            
+            /**
+             * Carrega as Marcações (Tickets)
+             * @param {string} status - O status para filtrar (Pendente, Confirmado, etc.)
+             * @param {HTMLElement} targetListElement - O <ul> onde a lista será renderizada
+             * @param {number|null} limit - Limite opcional de items
+             */
+            async function loadBookings(status, targetListElement = agendaList, limit = null) {
+                if (!targetListElement) return;
+                
+                targetListElement.innerHTML = SPINNER_HTML;
+                const model = shopDataCache.profile?.business_model || 'agendamento';
+                const title = model === 'delivery' ? 'Encomendas' : 'Marcações';
+                agendaListTitle.textContent = `${title} (${status})`;
+                
+                try {
+                    // ATENÇÃO: Esta API/rota `api/dashboard/bookings` agora é
+                    // inteligente no backend (app.py) para saber se deve devolver
+                    // Bookings ou Orders, com base no shop.business_model
+                    const response = await fetch(`/api/dashboard/bookings?status=${status}`);
+                    if (!response.ok) throw new Error(`Erro ao carregar ${title.toLowerCase()} ${status}.`);
+                    
+                    let bookings = await response.json();
+                    
+                    if (limit) bookings = bookings.slice(0, limit);
+                    
+                    if (bookings.length === 0) {
+                        targetListElement.innerHTML = EMPTY_STATE_HTML(`Nenhuma ${title.toLowerCase()} ${status.toLowerCase()}.`, '#icon-calendar');
+                        return;
+                    }
+                    
+                    targetListElement.innerHTML = '';
+                    bookings.forEach(b => {
+                        const li = document.createElement('li');
+                        li.className = 'p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-gray-50 dark:hover:bg-gray-800/50';
+                        
+                        // O 'data_hora' para delivery será a data de criação (created_at).
+                        const dateTimeRaw = b.data_hora || b.created_at;
+                        const dateTime = new Date(dateTimeRaw).toLocaleString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        
+                        // O 'hora' para delivery será (Delivery) ou (Takeaway)
+                        const timeDisplay = (model === 'agendamento' && b.data_hora) 
+                            ? new Date(b.data_hora).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+                            : (b.order_type ? `(${b.order_type.toUpperCase()})` : '');
+
+
+                        li.innerHTML = `
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">
+                                    <span class="text-primary-600 dark:text-primary-400 font-bold">[${b.ticket_number}]</span> ${b.nome_cliente}
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${b.item_nome} (${b.total_price.toFixed(2)} MZN)
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${dateTime} ${timeDisplay}
+                                </p>
+                            </div>
+                            <!-- Botões de Ação (só aparecem na página da Agenda) -->
+                            ${(targetListElement === agendaList && status === 'Pendente') ? `
+                            <div class="mt-3 sm:mt-0 flex-shrink-0 flex gap-2">
+                                <button data-id="${b.id}" data-action="Cancelado" class="btn-action-ticket btn btn-danger-outline !text-xs !py-1">Cancelar</button>
+                                <button data-id="${b.id}" data-action="Confirmado" class="btn-action-ticket btn btn-primary !text-xs !py-1">Aprovar</button>
+                            </div>
+                            ` : ''}
+                            ${(targetListElement === agendaList && status === 'Confirmado') ? `
+                            <div class="mt-3 sm:mt-0 flex-shrink-0 flex gap-2">
+                                <button data-id="${b.id}" data-action="Cancelado" class="btn-action-ticket btn btn-danger-outline !text-xs !py-1">Cancelar</button>
+                            </div>
+                            ` : ''}
+                        `;
+                        targetListElement.appendChild(li);
+                    });
+                } catch (error) {
+                    targetListElement.innerHTML = `<li class="p-5 text-center text-red-500">${error.message}</li>`;
+                }
+            }
+            
+            /**
+             * Carrega a lista de Produtos
+             */
+            async function loadProducts() {
+                productList.innerHTML = SPINNER_HTML;
+                try {
+                    const response = await fetch('/api/dashboard/products');
+                    if (!response.ok) throw new Error('Erro ao carregar produtos.');
+                    const products = await response.json();
+                    
+                    productList.innerHTML = '';
+                    if (products.length === 0) {
+                        productList.innerHTML = EMPTY_STATE_HTML('Nenhum produto criado. Comece por adicionar um.', '#icon-tag');
+                        return;
+                    }
+                    products.forEach(p => {
+                        const li = document.createElement('li');
+                        li.className = 'p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/50';
+                        
+                        // --- ATUALIZAÇÃO: Mostra o modo de pagamento ---
+                        const paymentModeText = p.payment_mode === 'deposito' 
+                            ? `Sinal: ${p.deposit_value.toFixed(2)} MZN` 
+                            : `Integral: ${p.preco.toFixed(2)} MZN`;
+
+                        li.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <img src="${p.image_url || 'https://placehold.co/60x60/e0e0e0/757575?text=Img'}" class="h-12 w-12 rounded-md object-cover">
+                                <div>
+                                    <p class="text-sm font-semibold">${p.nome}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Preço: ${p.preco.toFixed(2)} MZN | <span class="font-medium text-blue-600 dark:text-blue-400">${paymentModeText}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="space-x-2">
+                                <button data-id="${p.id}" class="btn-edit-product btn-icon">
+                                    <svg class="h-5 w-5"><use href="#icon-edit-2"></use></svg>
+                                </button>
+                                <button data-id="${p.id}" data-nome="${p.nome}" class="btn-delete-product btn-icon !text-red-500 hover:!bg-red-100 dark:hover:!bg-red-900/50">
+                                    <svg class="h-5 w-5"><use href="#icon-trash-2"></use></svg>
+                                </button>
+                            </div>
+                        `;
+                        productList.appendChild(li);
+                    });
+                } catch (error) {
+                    productList.innerHTML = `<li class="p-5 text-center text-red-500">${error.message}</li>`;
+                }
+            }
+            
+            /**
+             * Carrega a lista de Serviços
+             */
+            async function loadServices() {
+                serviceList.innerHTML = SPINNER_HTML;
+                try {
+                    const response = await fetch('/api/dashboard/services');
+                    if (!response.ok) throw new Error('Erro ao carregar serviços.');
+                    const services = await response.json();
+                    
+                    serviceList.innerHTML = '';
+                    if (services.length === 0) {
+                        serviceList.innerHTML = EMPTY_STATE_HTML('Nenhum serviço criado. Crie um para permitir agendamentos.', '#icon-scissors');
+                        return;
+                    }
+                    services.forEach(s => {
+                        const li = document.createElement('li');
+                        li.className = 'p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/50';
+                        
+                        // --- ATUALIZAÇÃO: Mostra o modo de pagamento ---
+                        const paymentModeText = s.payment_mode === 'deposito' 
+                            ? `Sinal: ${s.deposit_value.toFixed(2)} MZN` 
+                            : `Integral: ${s.preco.toFixed(2)} MZN`;
+                        
+                        li.innerHTML = `
+                            <div>
+                                <p class="text-sm font-semibold">${s.nome}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Preço: ${s.preco.toFixed(2)} MZN | Duração: ${s.duracao_min} min | <span class="font-medium text-blue-600 dark:text-blue-400">${paymentModeText}</span>
+                                </p>
+                            </div>
+                            <div class="space-x-2">
+                                <button data-id="${s.id}" class="btn-edit-service btn-icon">
+                                    <svg class="h-5 w-5"><use href="#icon-edit-2"></use></svg>
+                                </button>
+                                <button data-id="${s.id}" data-nome="${s.nome}" class="btn-delete-service btn-icon !text-red-500 hover:!bg-red-100 dark:hover:!bg-red-900/50">
+                                    <svg class="h-5 w-5"><use href="#icon-trash-2"></use></svg>
+                                </button>
+                            </div>
+                        `;
+                        serviceList.appendChild(li);
+                    });
+                } catch (error) {
+                    serviceList.innerHTML = `<li class="p-5 text-center text-red-500">${error.message}</li>`;
+                }
+            }
+
+            /**
+             * Salva TODOS os dados do Dashboard (Personalizar, Pagamentos e Horário)
+             */
+            async function handleSave() {
+                // 1. Recolher dados do formulário "Personalizar"
+                const profileData = {
+                    nome_loja: document.getElementById('shop-name').value,
+                    slug: document.getElementById('shop-url').value,
+                    descricao: document.getElementById('shop-description').value,
+                    telefone: document.getElementById('shop-phone').value,
+                    morada: document.getElementById('shop-address').value,
+                    profile_image_url: inputProfileUrl.value,
+                    announcement_url: inputAnnouncementUrl.value,
+                    // business_model não é enviado, é read-only
+                };
+                const socialData = {
+                    whatsapp: document.getElementById('shop-whatsapp').value,
+                    instagram: document.getElementById('shop-instagram').value,
+                    facebook: document.getElementById('shop-facebook').value,
+                };
+                
+                // --- ATUALIZAÇÃO: Recolhe os novos campos de layout ---
+                const customData = {
+                    theme_color: document.getElementById('shop-theme-color').value,
+                    layout_style: document.getElementById('shop-layout-style').value,
+                    // Verifica se o seletor de layout está visível antes de tentar ler
+                    product_layout_style: productLayoutSelectorContainer.offsetParent !== null 
+                                          ? document.querySelector('input[name="product-layout-style"]:checked').value 
+                                          : 'lista', // Default se estiver escondido
+                    allow_delivery: document.getElementById('allow-delivery').checked,
+                    allow_takeaway: document.getElementById('allow-takeaway').checked,
+                    show_schedule: document.getElementById('show-schedule').checked,
+                    show_products: document.getElementById('show-products').checked,
+                    show_bookings: document.getElementById('show-bookings').checked,
+                    show_info: document.getElementById('show-info').checked,
+                };
+                
+                // 2. Recolher dados de Pagamento
+                const paymentData = {
+                    allow_payment_local: document.getElementById('allow-payment-local').checked,
+                    allow_payment_online: document.getElementById('allow-payment-online').checked,
+                    payout_method: document.getElementById('payout-method').value,
+                    payout_number: document.getElementById('payout-number').value,
+                    payout_bank_details: document.getElementById('payout-bank-details').value
+                };
+                
+                // 3. Recolher dados do formulário "Horário"
+                const scheduleData = [];
+                scheduleContainer.querySelectorAll('.day-schedule').forEach((dayEl) => {
+                    scheduleData.push({
+                        aberto: dayEl.querySelector('input[type="checkbox"]').checked,
+                        inicio: dayEl.querySelector('input[type="time"][data-type="inicio"]').value,
+                        fim: dayEl.querySelector('input[type="time"][data-type="fim"]').value
+                    });
+                });
+                
+                // 4. Montar o objeto final da API
+                const dataToSend = {
+                    profile: profileData,
+                    social: socialData,
+                    customization: customData,
+                    payment: paymentData,
+                    schedules: scheduleData
+                };
+
+                // 5. Enviar para a API
+                saveButton.disabled = true;
+                saveButton.innerHTML = `A Guardar... <div class="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>`;
+                
+                try {
+                    const response = await fetch('/api/dashboard/update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dataToSend)
+                    });
+                    
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+                    
+                    showToast(result.message, 'success');
+                    // Atualizar cache local e UI
+                    shopDataCache = { ...shopDataCache, ...dataToSend };
+                    populatePagePromover(profileData.slug); // Atualiza o QR Code se o slug mudou
+                    if (profileData.profile_image_url) userProfileImg.src = profileData.profile_image_url;
+
+                } catch (error) {
+                    showToast(error.message, 'error');
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = '<svg class="mr-2 h-5 w-5 -ml-1"><use href="#icon-save"></use></svg> Guardar Alterações';
+                }
+            }
+            
+            /**
+             * Lógica de Upload de Imagens
+             */
+            async function handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const isProfile = event.target.id === 'input-upload-profile';
+                const inputUrlElement = isProfile ? inputProfileUrl : inputAnnouncementUrl;
+                const imgPreviewElement = isProfile ? imgPreviewProfile : imgPreviewAnnouncement;
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Mostra um preview local imediato
+                const reader = new FileReader();
+                reader.onload = (e) => { imgPreviewElement.src = e.target.result; };
+                reader.readAsDataURL(file);
+                
+                // Mostra um "toast" de upload
+                showToast('A enviar imagem...', 'info');
+
+                try {
+                    const response = await fetch('/api/dashboard/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error);
+                    
+                    // Sucesso! Guarda o URL retornado no input hidden
+                    inputUrlElement.value = result.file_url;
+                    showToast('Imagem enviada! Clique em "Guardar Alterações" para aplicar.', 'success');
+                    
+                } catch (error) {
+                    showToast(`Erro no upload: ${error.message}`, 'error');
+                    imgPreviewElement.src = 'https://placehold.co/256x256/e0e0e0/757575?text=Erro'; // Resetar preview
+                }
+            }
+
+
+            // --- 3. ATRIBUIR EVENT LISTENERS ---
+            
+            // Navegação da Sidebar
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const pageId = link.dataset.page;
+                    if (pageId) {
+                        e.preventDefault(); 
+                        showPage(pageId);
+                        if (window.innerWidth < 1024) closeSidebar();
+                    }
+                    // Links externos (como KDS) funcionam normalmente
+                });
+            });
+            
+            // Botão Guardar
+            saveButton.addEventListener('click', handleSave);
+
+            // Upload de Imagens
+            inputUploadProfile.addEventListener('change', handleImageUpload);
+            inputUploadAnnouncement.addEventListener('change', handleImageUpload);
+
+            // Tabs da Agenda
+            agendaTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    agendaTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    loadBookings(tab.dataset.status, agendaList);
+                });
+            });
+
+            // Ações na Lista de Agenda (Aprovar/Cancelar)
+            // (Usando delegação de eventos no <ul> pai)
+            document.getElementById('agenda-list').addEventListener('click', async (e) => {
+                const button = e.target.closest('.btn-action-ticket');
+                if (!button) return;
+                
+                const bookingId = button.dataset.id;
+                const newStatus = button.dataset.action;
+                const currentTab = document.querySelector('.agenda-tab.active').dataset.status;
+                
+                try {
+                    // ATENÇÃO: Esta API/rota `api/dashboard/bookings/update-status`
+                    // é inteligente no backend (app.py) para saber
+                    // se deve atualizar um Booking ou um Order.
+                    const response = await fetch('/api/dashboard/bookings/update-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: bookingId, status: newStatus })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error);
+                    
+                    showToast(result.message, 'success');
+                    loadBookings(currentTab, agendaList); // Recarrega a lista da tab atual
+                    
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+            
+            // Event Listener para Horário (Checkbox abre/fecha)
+            scheduleContainer.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const timeContainer = e.target.closest('.day-schedule').querySelector('.time-inputs');
+                    timeContainer.classList.toggle('opacity-50', !e.target.checked);
+                    timeContainer.querySelectorAll('input[type="time"]').forEach(i => i.disabled = !e.target.checked);
+                }
+            });
+            
+            // Event Listener para Promover (Copiar Link)
+            copyLinkButton.addEventListener('click', () => {
+                publicLinkInput.select();
+                try {
+                    // Tenta o método moderno (assíncrono)
+                    navigator.clipboard.writeText(publicLinkInput.value)
+                        .then(() => showToast('Link copiado!', 'success'))
+                        .catch(() => {
+                            // Fallback para document.execCommand
+                            document.execCommand('copy');
+                            showToast('Link copiado!', 'success');
+                        });
+                } catch (err) {
+                    // Fallback para execCommand se o navigator.clipboard não existir
+                    document.execCommand('copy');
+                    showToast('Link copiado!', 'success');
+                }
+            });
+
+            // ==========================================================
+            // ATUALIZAÇÃO: Listeners para Pagamento (Depósito)
+            // ==========================================================
+            productPaymentMode.addEventListener('change', () => {
+                productDepositContainer.classList.toggle('hidden', productPaymentMode.value !== 'deposito');
+            });
+            servicePaymentMode.addEventListener('change', () => {
+                serviceDepositContainer.classList.toggle('hidden', servicePaymentMode.value !== 'deposito');
+            });
+
+
+            // --- Lógica CRUD de Produtos (Delegação de Eventos) ---
+            productPage.addEventListener('click', async (e) => {
+                const btnEdit = e.target.closest('.btn-edit-product');
+                const btnDelete = e.target.closest('.btn-delete-product');
+
+                if (btnEdit) {
+                    // Editar: Busca o produto e preenche o formulário
+                    const id = btnEdit.dataset.id;
+                    try {
+                        const res = await fetch(`/api/dashboard/products/${id}`);
+                        if (!res.ok) throw new Error('Produto não encontrado');
+                        const p = await res.json();
+                        
+                        productFormTitle.textContent = 'Editar Produto';
+                        productIdInput.value = p.id;
+                        document.getElementById('product-name').value = p.nome;
+                        document.getElementById('product-description').value = p.descricao;
+                        document.getElementById('product-price').value = p.preco;
+                        document.getElementById('product-image-url').value = p.image_url;
+                        
+                        // --- ATUALIZAÇÃO: Preenche os campos de depósito ---
+                        document.getElementById('product-payment-mode').value = p.payment_mode || 'integral';
+                        document.getElementById('product-deposit-value').value = p.deposit_value || 0;
+                        productPaymentMode.dispatchEvent(new Event('change')); // Força o show/hide
+                        // ------------------------------------------------
+                        
+                        productForm.classList.remove('hidden');
+                        productForm.scrollIntoView({ behavior: 'smooth' });
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+                
+                if (btnDelete) {
+                    // Apagar (com modal)
+                    const id = btnDelete.dataset.id;
+                    const nome = btnDelete.dataset.nome;
+                    
+                    showDeleteModal('Apagar Produto', `Tem a certeza que quer apagar "${nome}"?`, async () => {
+                        try {
+                            const res = await fetch(`/api/dashboard/products/${id}`, { method: 'DELETE' });
+                            if (!res.ok) throw new Error('Falha ao apagar');
+                            showToast('Produto apagado.', 'success');
+                            loadProducts();
+                        } catch (err) {
+                            showToast(err.message, 'error');
+                        }
+                    });
+                }
+            });
+
+            addProductButton.addEventListener('click', () => {
+                productFormTitle.textContent = 'Adicionar Novo Produto';
+                productIdInput.value = ''; // Limpa o ID
+                productForm.reset(); // Limpa os campos
+                productPaymentMode.dispatchEvent(new Event('change')); // Garante que o campo de depósito está escondido
+                productForm.classList.remove('hidden');
+                productForm.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            cancelProductButton.addEventListener('click', () => {
+                productForm.classList.add('hidden');
+                productForm.reset();
+            });
+
+            saveProductButton.addEventListener('click', async () => {
+                const id = productIdInput.value;
+                const isCreating = !id;
+                
+                // --- ATUALIZAÇÃO: Envia os novos campos de depósito ---
+                const data = {
+                    nome: document.getElementById('product-name').value,
+                    descricao: document.getElementById('product-description').value,
+                    preco: document.getElementById('product-price').value,
+                    image_url: document.getElementById('product-image-url').value,
+                    payment_mode: document.getElementById('product-payment-mode').value,
+                    deposit_value: document.getElementById('product-deposit-value').value || 0
+                };
+                
+                const url = isCreating ? '/api/dashboard/products' : `/api/dashboard/products/${id}`;
+                const method = isCreating ? 'POST' : 'PUT';
+                
+                try {
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.error);
+                    
+                    showToast(result.message, 'success');
+                    productForm.classList.add('hidden');
+                    loadProducts(); // Recarrega a lista
+                    
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+            
+            // --- Lógica CRUD de Serviços (Delegação de Eventos) ---
+            servicePage.addEventListener('click', async (e) => {
+                const btnEdit = e.target.closest('.btn-edit-service');
+                const btnDelete = e.target.closest('.btn-delete-service');
+
+                if (btnEdit) {
+                    // Editar: Busca o serviço e preenche o formulário
+                    const id = btnEdit.dataset.id;
+                    try {
+                        const res = await fetch(`/api/dashboard/services/${id}`);
+                        if (!res.ok) throw new Error('Serviço não encontrado');
+                        const s = await res.json();
+                        
+                        serviceFormTitle.textContent = 'Editar Serviço';
+                        serviceIdInput.value = s.id;
+                        document.getElementById('service-name').value = s.nome;
+                        document.getElementById('service-price').value = s.preco;
+                        document.getElementById('service-duration').value = s.duracao_min;
+                        
+                        // --- ATUALIZAÇÃO: Preenche os campos de depósito ---
+                        document.getElementById('service-payment-mode').value = s.payment_mode || 'integral';
+                        document.getElementById('service-deposit-value').value = s.deposit_value || 0;
+                        servicePaymentMode.dispatchEvent(new Event('change')); // Força o show/hide
+                        // ------------------------------------------------
+                        
+                        serviceForm.classList.remove('hidden');
+                        serviceForm.scrollIntoView({ behavior: 'smooth' });
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+                
+                if (btnDelete) {
+                    // Apagar (com modal)
+                    const id = btnDelete.dataset.id;
+                    const nome = btnDelete.dataset.nome;
+
+                    showDeleteModal('Apagar Serviço', `Tem a certeza que quer apagar "${nome}"?`, async () => {
+                        try {
+                            const res = await fetch(`/api/dashboard/services/${id}`, { method: 'DELETE' });
+                            if (!res.ok) throw new Error('Falha ao apagar');
+                            showToast('Serviço apagado.', 'success');
+                            loadServices();
+                        } catch (err) {
+                            showToast(err.message, 'error');
+                        }
+                    });
+                }
+            });
+
+            addServiceButton.addEventListener('click', () => {
+                serviceFormTitle.textContent = 'Adicionar Novo Serviço';
+                serviceIdInput.value = ''; // Limpa o ID
+                serviceForm.reset(); // Limpa os campos
+                servicePaymentMode.dispatchEvent(new Event('change')); // Garante que o campo de depósito está escondido
+                serviceForm.classList.remove('hidden');
+                serviceForm.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            cancelServiceButton.addEventListener('click', () => {
+                serviceForm.classList.add('hidden');
+                serviceForm.reset();
+            });
+
+            saveServiceButton.addEventListener('click', async () => {
+                const id = serviceIdInput.value;
+                const isCreating = !id;
+                
+                // --- ATUALIZAÇÃO: Envia os novos campos de depósito ---
+                const data = {
+                    nome: document.getElementById('service-name').value,
+                    preco: document.getElementById('service-price').value,
+                    duracao_min: document.getElementById('service-duration').value,
+                    payment_mode: document.getElementById('service-payment-mode').value,
+                    deposit_value: document.getElementById('service-deposit-value').value || 0
+                };
+                
+                // Validação simples
+                if (!data.nome || !data.preco || !data.duracao_min) {
+                    showToast('Preencha todos os campos do serviço.', 'error');
+                    return;
+                }
+                
+                const url = isCreating ? '/api/dashboard/services' : `/api/dashboard/services/${id}`;
+                const method = isCreating ? 'POST' : 'PUT';
+                
+                try {
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.error);
+                    
+                    showToast(result.message, 'success');
+                    serviceForm.classList.add('hidden');
+                    loadServices(); // Recarrega a lista
+                    
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+
+            // --- 4. INICIALIZAÇÃO ---
+            showPage('page-metricas'); // Definir página inicial
+            loadInitialData(); // Carregar dados do back-end
+
+        });
+    </script>
+
+</body>
+</html>

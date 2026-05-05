@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecrã de Marcações - {{ shop_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark BG */
+            color: #F3F4F6;
+            overflow: hidden;
+            cursor: none; /* Esconde o cursor */
+        }
+        .kds-container {
+            display: grid;
+            grid-template-columns: 3fr 2fr; /* Divisão 60% / 40% */
+            height: 100vh;
+        }
+        
+        /* Lado dos Tickets */
+        .tickets-panel {
+            background-color: #1F2937; /* Gray 800 */
+            padding: 24px;
+            overflow-y: auto;
+            border-right: 4px solid #374151; /* Gray 700 */
+        }
+        .tickets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4B5563;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        .tickets-header h1 {
+            font-size: 2.25rem; /* 3xl */
+            font-weight: 800;
+        }
+        .clock {
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+        
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .ticket {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .ticket.status-Pendente {
+            background-color: #E11D48; /* Rose 600 */
+            color: #fff;
+        }
+        .ticket.status-Confirmado {
+            background-color: #16A34A; /* Green 600 */
+            color: #fff;
+        }
+        .ticket-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed rgba(255,255,255,0.3);
+        }
+        .ticket-number {
+            font-size: 2.25rem;
+            font-weight: 900;
+        }
+        .ticket-status {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .ticket-body {
+            padding: 16px;
+        }
+        .ticket-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .ticket-time {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Lado do Anúncio */
+        .announcement-panel {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .announcement-content {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cobre todo o espaço */
+        }
+        .no-announcement {
+            font-size: 1.25rem;
+            color: #9CA3AF; /* Gray 400 */
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="kds-container">
+        <div class="tickets-panel">
+            <div class="tickets-header">
+                <h1>Marcações</h1>
+                <div id="clock" class="clock">00:00:00</div>
+            </div>
+            <div id="tickets-grid" class="tickets-grid">
+                </div>
+        </div>
+        
+        <div class="announcement-panel">
+            {% if announcement_url %}
+                {% if announcement_url.endswith('.mp4') or announcement_url.endswith('.webm') %}
+                    <video class="announcement-content" src="{{ announcement_url }}" autoplay muted loop playsinline>
+                        O seu navegador não suporta o vídeo.
+                    </video>
+                {% else %}
+                    <img class="announcement-content" src="{{ announcement_url }}" alt="Anúncio">
+                {% endif %}
+            {% else %}
+                <p class="no-announcement">
+                    <i class="fa-solid fa-image" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <br>
+                    Nenhum anúncio configurado.
+                    <br>
+                    Adicione um Banner / Anúncio na página "Personalizar" do seu Dashboard.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <button id="fullscreen-btn" style="position: fixed; bottom: 10px; right: 10px; z-index: 100; background: rgba(255,255,255,0.8); color: #111; border: none; padding: 10px; border-radius: 50%; cursor: pointer;">
+        <i class="fa-solid fa-expand"></i>
+    </button>
+
+    <script>
+        const ticketsGrid = document.getElementById('tickets-grid');
+        const clockElement = document.getElementById('clock');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+        /**
+         * 1. Atualiza o Relógio
+         */
+        function updateClock() {
+            const now = new Date();
+            clockElement.textContent = now.toLocaleTimeString('pt-PT');
+        }
+
+        /**
+         * 2. Busca e Renderiza os Tickets
+         */
+        async function fetchTickets() {
+            try {
+                const response = await fetch('/api/dashboard/kds-tickets');
+                if (!response.ok) throw new Error('Falha na rede');
+                
+                const tickets = await response.json();
+                renderTickets(tickets);
+                
+            } catch (error) {
+                console.error("Erro ao buscar tickets:", error);
+                ticketsGrid.innerHTML = '<p style="color: #F87171; font-size: 1.25rem;">Erro de conexão com a API.</p>';
+            }
+        }
+
+        /**
+         * 3. Coloca os Tickets no Ecrã
+         */
+        function renderTickets(tickets) {
+            ticketsGrid.innerHTML = ''; // Limpa a grelha
+            
+            if (tickets.length === 0) {
+                ticketsGrid.innerHTML = '<p style="color: #9CA3AF; font-size: 1.25rem; grid-column: 1 / -1;">Nenhuma marcação pendente ou confirmada para hoje.</p>';
+                return;
+            }
+            
+            tickets.forEach(ticket => {
+                const ticketEl = document.createElement('div');
+                ticketEl.className = `ticket status-${ticket.status}`;
+                ticketEl.innerHTML = `
+                    <div class="ticket-header">
+                        <span class="ticket-number">${ticket.ticket_number}</span>
+                        <span class="ticket-status">${ticket.status}</span>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="ticket-name">${ticket.nome_cliente}</div>
+                        <div class="ticket-time"><i class="fa-regular fa-clock"></i> ${ticket.hora}</div>
+                    </div>
+                `;
+                ticketsGrid.appendChild(ticketEl);
+            });
+        }
+        
+        /**
+         * 4. Lógica de Fullscreen
+         */
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fa-solid fa-compress"></i>';
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+            }
+        }
+
+        // --- INICIALIZAÇÃO ---
+        
+        // Atualiza o relógio a cada segundo
+        setInterval(updateClock, 1000);
+        updateClock();
+        
+        // Busca tickets a cada 20 segundos
+        setInterval(fetchTickets, 20000);
+        fetchTickets(); // Busca imediatamente ao carregar
+        
+        // Botão de Fullscreen
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+        
+    </script>
+</body>
+</html>

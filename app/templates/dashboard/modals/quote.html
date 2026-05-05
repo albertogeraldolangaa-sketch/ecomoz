@@ -1,0 +1,35 @@
+<!-- Modal Orçamento -->
+<div id="modal-view-quote" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-overlay fixed inset-0 bg-black/50" onclick="closeModal('modal-view-quote')"></div>
+    <div class="modal-content w-full max-w-lg rounded-lg shadow-xl overflow-hidden bg-white dark:bg-gray-800">
+        <div class="flex items-center justify-between p-4 border-b dark:border-gray-700">
+            <h3 id="modal-quote-title" class="text-lg font-semibold text-gray-900 dark:text-white">Pedido de Orçamento</h3>
+            <button type="button" onclick="closeModal('modal-view-quote')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div>
+                <strong class="block text-sm font-medium text-gray-900 dark:text-white">Cliente:</strong>
+                <p id="quote_client_name" class="text-gray-700 dark:text-gray-300"></p>
+            </div>
+             <div>
+                <strong class="block text-sm font-medium text-gray-900 dark:text-white">Telefone:</strong>
+                <p id="quote_client_phone" class="text-gray-700 dark:text-gray-300"></p>
+            </div>
+            <div>
+                <strong class="block text-sm font-medium text-gray-900 dark:text-white">Data do Pedido:</strong>
+                <p id="quote_date" class="text-gray-700 dark:text-gray-300"></p>
+            </div>
+            <hr class="border-gray-300 dark:border-gray-600"/>
+            <div>
+                <strong class="block text-sm font-medium text-gray-900 dark:text-white">Detalhes do Pedido:</strong>
+                <p id="quote_details" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></p>
+            </div>
+        </div>
+        <div class="flex items-center justify-end p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 space-x-2">
+            <button type="button" id="quote-mark-read-btn" data-id="" class="btn btn-outline">Marcar como Lido</button>
+            <button type="button" onclick="closeModal('modal-view-quote')" class="btn btn-primary">Fechar</button>
+        </div>
+    </div>
+</div>

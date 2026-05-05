@@ -1,0 +1,5 @@
+<header class="minisite-header">
+    <img src="{{ shop.profile_image_url | default('https://placehold.co/100x100/e0e0e0/757575?text=' ~ (shop.nome | first | upper)) }}" alt="Logo {{ shop.nome }}" class="logo">
+    <h1>{{ shop.nome | default('Nome da Loja') }}</h1>
+    <p>{{ shop.descricao | default('A sua descrição aqui.') }}</p>
+</header>

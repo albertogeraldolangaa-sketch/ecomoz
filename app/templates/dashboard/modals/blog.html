@@ -1,0 +1,112 @@
+<div id="modal-add-blog-post" class="modal fixed inset-0 z-50 hidden justify-end items-start flex">
+    
+    <div class="modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-add-blog-post')"></div>
+
+    <div class="modal-slide-over w-full sm:w-[600px] lg:w-[800px] h-full flex flex-col bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 translate-x-full">
+        
+        <div class="modal-header-sticky px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-pink-50 dark:bg-pink-900/20 rounded-lg text-pink-600">
+                    <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 id="modal-blog-post-title" class="text-lg font-bold text-gray-900 dark:text-white">Editor de Conteúdo</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Notícias e artigos para os seus clientes.</p>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-add-blog-post')" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto scroll-smooth bg-white dark:bg-gray-900">
+            <form id="form-blog-post" data-id="" class="flex flex-col min-h-full">
+                
+                <div class="relative w-full h-64 bg-gray-50 dark:bg-gray-800/50 group cursor-pointer border-b border-gray-100 dark:border-gray-800 overflow-hidden">
+                    <input type="file" id="post_image" class="absolute inset-0 opacity-0 cursor-pointer z-20" accept="image/*">
+                    <input type="hidden" id="post_image_url">
+                    
+                    <div id="post_image_placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 transition-opacity duration-300 group-hover:text-gray-600 dark:group-hover:text-gray-300">
+                        <i data-lucide="image" class="w-10 h-10 mb-2 opacity-50"></i>
+                        <span class="text-sm font-medium">Adicionar Imagem de Capa</span>
+                    </div>
+
+                    <img id="post_image_preview" src="" class="absolute inset-0 w-full h-full object-cover hidden transition-transform duration-700 group-hover:scale-105 z-10">
+                    
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-10 pointer-events-none"></div>
+                </div>
+
+                <div class="p-8 space-y-6 max-w-3xl mx-auto w-full flex-1">
+                    
+                    <div class="relative">
+                        <input type="text" id="post_titulo" 
+                               class="w-full text-3xl md:text-4xl font-black text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-transparent focus:border-pink-500 focus:ring-0 px-0 py-4 placeholder-gray-300 dark:placeholder-gray-700 transition-all" 
+                               placeholder="Escreva o título aqui..." required>
+                    </div>
+
+                    <div class="relative flex-1">
+                        <textarea id="post_conteudo" rows="12" 
+                                  class="w-full text-lg text-gray-600 dark:text-gray-300 bg-transparent border-0 focus:ring-0 px-0 py-2 resize-y placeholder-gray-300 dark:placeholder-gray-700 leading-relaxed" 
+                                  placeholder="Comece a escrever a sua história... Use este espaço para partilhar novidades, dicas ou promoções com os seus clientes."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="px-8 pb-8 mt-auto">
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white dark:bg-gray-700 rounded-full shadow-sm text-gray-500">
+                                <i data-lucide="globe" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">Visibilidade</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Tornar este post visível na loja?</p>
+                            </div>
+                        </div>
+                        
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="post_is_published" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-pink-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="modal-footer-sticky px-8 py-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 z-20 flex justify-between items-center">
+            <button type="button" id="blog-post-draft-btn" class="text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Guardar Rascunho
+            </button>
+            
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-add-blog-post')" class="px-6 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" form="form-blog-post" id="blog-post-publish-btn" class="btn-primary-pro bg-pink-600 hover:bg-pink-700 text-white px-8 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-pink-500/20 transition-transform active:scale-95 flex items-center gap-2">
+                    <span>Publicar</span> <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Script para preview da imagem de capa do blog
+    document.getElementById('post_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('post_image_preview');
+        const placeholder = document.getElementById('post_image_placeholder');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.style.opacity = '0';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

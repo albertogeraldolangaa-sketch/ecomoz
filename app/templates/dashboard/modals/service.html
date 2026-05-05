@@ -1,0 +1,83 @@
+<div id="modal-add-servico" class="modal fixed inset-0 z-50 hidden items-center justify-center p-4">
+    
+    <div class="modal-overlay fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-add-servico')"></div>
+    
+    <div class="modal-content w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-xl animate-scale-in overflow-hidden">
+        
+        <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <i data-lucide="scissors" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 id="modal-servico-title" class="text-lg font-bold text-gray-900 dark:text-white">Novo Serviço</h3>
+                    <p class="text-xs text-gray-500">Agendamento e duração.</p>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-add-servico')" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="form-servico" class="p-6 space-y-5">
+            
+            <div class="form-group">
+                <label class="form-label font-medium">Nome do Serviço</label>
+                <input type="text" id="serv_nome" class="form-input w-full rounded-lg border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500/20" placeholder="Ex: Corte de Cabelo Degradê" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-5">
+                <div class="form-group">
+                    <label class="form-label font-medium">Preço (MZN)</label>
+                    <input type="number" id="serv_preco" class="form-input w-full rounded-lg border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500/20" placeholder="500.00" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label font-medium">Duração (min)</label>
+                    <div class="relative">
+                        <input type="number" id="serv_duracao" class="form-input w-full rounded-lg border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500/20" placeholder="30" required step="5">
+                        <span class="absolute right-3 top-2 text-xs text-gray-400 pointer-events-none">min</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 dark:border-gray-700">
+
+            <div class="space-y-3">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Confirmação Online</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-3 shadow-sm focus:outline-none hover:border-blue-400 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:ring-blue-500">
+                        <input type="radio" name="payment_type" value="integral" class="sr-only" onchange="document.getElementById('serv_deposit_container').classList.add('hidden')">
+                        <span class="flex flex-1">
+                            <span class="flex flex-col">
+                                <span class="block text-sm font-medium text-gray-900">Pagamento Total</span>
+                                <span class="mt-1 flex items-center text-xs text-gray-500">100% online</span>
+                            </span>
+                        </span>
+                        <i data-lucide="check-circle-2" class="h-5 w-5 text-blue-600 opacity-0 peer-checked:opacity-100"></i>
+                    </label>
+                    
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-3 shadow-sm focus:outline-none hover:border-blue-400">
+                        <input type="radio" name="payment_type" value="deposito" class="sr-only" onchange="document.getElementById('serv_deposit_container').classList.remove('hidden')">
+                        <span class="flex flex-1">
+                            <span class="flex flex-col">
+                                <span class="block text-sm font-medium text-gray-900">Sinal / Depósito</span>
+                                <span class="mt-1 flex items-center text-xs text-gray-500">Parcial online</span>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="serv_deposit_container" class="hidden animate-fade-up bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <label for="serv_deposit_value" class="text-xs font-bold text-blue-800 uppercase tracking-wide">Valor do Sinal (MZN)</label>
+                <input type="number" id="serv_deposit_value" class="mt-1 form-input w-full rounded-md border-blue-200 bg-white focus:border-blue-500" placeholder="150.00">
+            </div>
+
+        </form>
+
+        <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button type="button" onclick="closeModal('modal-add-servico')" class="btn btn-outline bg-white">Cancelar</button>
+            <button type="submit" form="form-servico" class="btn btn-primary bg-blue-600 hover:bg-blue-700 border-transparent text-white shadow-sm">Guardar Serviço</button>
+        </div>
+    </div>
+</div>

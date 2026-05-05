@@ -1,0 +1,27 @@
+<nav id="l1-sidebar" class="w-20 p-4 flex flex-col items-center space-y-4 shadow-lg z-40 fixed inset-y-0 left-0 bg-white dark:bg-gray-900">
+    <span class="text-xl font-bold text-blue-800 dark:text-white mb-4">M.</span>
+    
+    <a class="l1-link" onclick="showSubMenu('gestao')">
+        <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+        <span class="text-xs mt-1">Gestão</span>
+    </a>
+    <a class="l1-link" onclick="showSubMenu('catalogo')">
+        <i data-lucide="briefcase" class="w-6 h-6"></i>
+        <span class="text-xs mt-1">Catálogo</span>
+    </a>
+    <a class="l1-link" onclick="showSubMenu('marketing')">
+        <i data-lucide="megaphone" class="w-6 h-6"></i>
+        <span class="text-xs mt-1">Marketing</span>
+    </a>
+    <a class="l1-link" onclick="showSubMenu('config')">
+        <i data-lucide="settings-2" class="w-6 h-6"></i>
+        <span class="text-xs mt-1">Ajustes</span>
+    </a>
+    
+    <div class="absolute bottom-4 flex flex-col items-center">
+         <img id="nav-avatar" src="https://placehold.co/40x40/9CA3AF/1F2937?text=DL" alt="Avatar da Loja" class="w-10 h-10 rounded-full border-2 border-gray-300 dark:border-gray-700 cursor-pointer" onclick="openShopsModal()" title="Gerir Lojas">
+         <a href="/logout" class="l1-link mt-4 !opacity-60 hover:!opacity-100">
+            <i data-lucide="log-out" class="w-6 h-6"></i>
+         </a>
+    </div>
+</nav>
