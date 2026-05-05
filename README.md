@@ -3,7 +3,7 @@
 
 Este repositório contém o núcleo da infraestrutura da plataforma **Ecomoz**, desenvolvida em Flask, com suporte para gestão de serviços, produtos, pagamentos e comunicação em tempo real.
 
-## 🚀 Funcionalidades Principais
+##  Funcionalidades Principais
 
 * **Arquitetura Modular:** Estrutura baseada em blueprints para escalabilidade (`Dashboard`, `API`, e Webhooks).
 * **Comunicação em Tempo Real:** Integração com *Flask-SocketIO* para notificações e chats entre lojistas e clientes.
@@ -13,7 +13,7 @@ Este repositório contém o núcleo da infraestrutura da plataforma **Ecomoz**, 
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * **Backend:** Python 3.1x + Flask
 * **Base de Dados:** SQLAlchemy (SQLite / PostgreSQL)
